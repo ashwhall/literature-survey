@@ -1,20 +1,65 @@
-\documentclass[]{article}
+\documentclass{report}
 
 %opening
 \title{}
 \author{Ash}
 
 \begin{document}
-	
+
 	\maketitle
+	\thispagestyle{empty}
+	\newpage
+	\thispagestyle{empty}
+	\tableofcontents
+	\newpage
+	\thispagestyle{empty}
+	\listoffigures
+	\newpage
 	
-	\begin{abstract}
-		
-	\end{abstract}
+	\chapter{Introduction}
+	\textbf{Very brief background}
+	Deep learning good for large data set.
+	Motivation is to work with less training examples \\
+	\textbf{Existing work on meta learning and continuous learning} \\
+	\textbf{Gap the literature} \\
+	\textbf{Describe the Problem}
+	A system that can do continual learning. Refer to this doc:
+	https://paper.dropbox.com/doc/Adding-classes-an-existing-classifier-RdKxXHh7M9OWbHvEvCCsV
+	We want it to be scalable with respect to the number of classes
+	So it should work faster than nearest neighbour based approaches for large number of classes \\
+	\textbf{High level how you will solve it and why it is different from existing work} \\
+	\textbf{Brief description of experimental setup} \\
 	
-	\section{Introduction}
+	\chapter{Background}
+	\section{Hand Engineered vs Learnt Features}
+
+	\section{Supervised learning}
+	\section{Optimization}
+	\subsection{SGD}
+	\subsection{Backprop}
+	\subsection{Auto optimizers like ADAM and RMSProp}
+	\section{Dealing with Small Training Data Sets}
+	\subsection{Overfitting}
+	\subsection{Transfer Learning}
+	\subsection{Few-Shot Learning}
+	\subsection{Meta Learning}
+	\textit{Break into meta training, testing, episodes, etc.}
+	\section{Continuous Learning}
+	\textit{Catastrophic forgetting}
+	\section{Modern Deep Learning Architectures}
+	\subsection{Convolutional Neural Networks}
+	\subsection{Recurrent Neural Networks}
 	
-	\subsection{What I do}
+	\chapter{Related Works}
+	\section{Meta Learning}
+	Approaches in meta learning with neural networks are generally groupd into three categories.
+	\subsection{Model Based}
+	\subsection{Metric Based}
+	\subsection{Optimization Based}
+	\section{Continuous Learning}
 	
+	\chapter{Proposal}
 	
+
+
 \end{document}
