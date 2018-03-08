@@ -1,5 +1,7 @@
 \documentclass{report}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{amsmath}
+\usepackage{bm}
 %opening
 \title{}
 \author{Ash}
@@ -40,9 +42,18 @@
 	\section{Supervised Learning}
 	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
 	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\
-	There are a multitude of supervised and unsupervised learning problems. As with almost all meta-learning strategies, I will focus primarily on the task of image classification.
+	There are a multitude of supervised and unsupervised learning problems. As with almost all meta-learning strategies, I will focus primarily on the supervised task of image classification.
 	% TODO: Week 2
-	\section{Optimization}
+	\section{Optimisation}
+	\subsection{Loss}
+	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called either \textit{loss} or \textit{cost}. It is the system's objective to minimise this value through some optimisation algorithm. The particular loss function is specifically chosen for the task at hand, cross-entropy being a common choice for image classification tasks. \\
+	Before discussing the cross-entropy loss function, it's important to understand the outputs of a machine learning system when performing image classification. \\
+	For a system that makes predictions between $N$ classes, its output is a vector of length $N$, where each of the output values $N_i$ is a a score for that class $i$ being the correct answer. \\
+	As the outputs aren't normalised and thus cannot be interpreted as a true confidence measure, the outputs then normally go through a softmax function $\sigma$.
+	\begin{equation} \label{softmax:1}
+	\sigma(\bm{z})_i = \frac{e^{z_i}}{\sum_{k=1}^{N}e^{z_i}} \\
+	\end{equation}
+	The softmax function (eq \ref{softmax:1}) squashes the arbitrary scores into a vector of values such that their values are in the range $[0, 1]$ and that all components sum to $1$. The resultant values can be interpreted as the probability measures for the input image falling into each of the classes. \\
 	- What loss is \\
 	- Loss curve \\
 	- Gradient descent \\
