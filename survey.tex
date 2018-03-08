@@ -1,11 +1,11 @@
 \documentclass{report}
-
+\usepackage[a4paper, total={6in, 8in}]{geometry}
 %opening
 \title{}
 \author{Ash}
 
 \begin{document}
-
+	
 	\maketitle
 	\thispagestyle{empty}
 	\newpage
@@ -30,14 +30,33 @@
 	\textbf{High level how you will solve it and why it is different from existing work} \\
 	\textbf{Brief description of experimental setup} \\
 	
+	% TODO: Week 2
 	\chapter{Background}
+	% TODO: Week 2
 	\section{Hand Engineered vs Learnt Features}
-
-	\section{Supervised learning}
+	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. \\
+	A fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner.
+	% TODO: Week 2
+	\section{Supervised Learning}
+	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
+	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\
+	There are a multitude of supervised and unsupervised learning problems. As with almost all meta-learning strategies, I will focus primarily on the task of image classification.
+	% TODO: Week 2
 	\section{Optimization}
+	- What loss is \\
+	- Loss curve \\
+	- Gradient descent \\
+		- Why \\
+		- How \\
+	% TODO: Week 2
 	\subsection{SGD}
+	- Why use Sgd
+	
+	% TODO: Week 2
 	\subsection{Backprop}
+	% TODO: Week 2
 	\subsection{Auto optimizers like ADAM and RMSProp}
+	
 	\section{Dealing with Small Training Data Sets}
 	\subsection{Overfitting}
 	\subsection{Transfer Learning}
