@@ -35,19 +35,23 @@
 	\textbf{High level how you will solve it and why it is different from existing work} \\
 	\textbf{Brief description of experimental setup} \\
 	
-	% TODO: Week 2
+	
 	\chapter{Background}
-	% TODO: Week 2
+	\textbf{TODO: Week 2} \\
 	\section{Hand Engineered vs Learnt Features}
+	\textbf{TODO: Week 2} \\
 	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. \\
 	A fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner.
-	% TODO: Week 2
+
 	\section{Supervised Learning}
+	\textbf{TODO: Week 2} \\
 	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
 	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\
 	There are a multitude of supervised and unsupervised learning problems, but as with almost all meta-learning strategies I will focus primarily on the supervised task of image classification.
-	% TODO: Week 2
+	
+
 	\section{Optimisation}
+	\textbf{TODO: Week 2} \\
 	\subsection{Loss}
 	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how "badly" the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for localisation. \\
 	
@@ -65,7 +69,7 @@
 	
 	\subsubsection{Cross-Entropy Loss}	
 	With the machine learning system producing a normalised probability distribution across classes, those values need be compared with the targets to produce a scalar loss value.
-	% TODO TURN INTO WORDS
+	\textbf{TODO TURN INTO WORDS} \\
 	Cross-entropy loss, otherwise known as \textit{log loss}, penalises for differences between predicted values and targets, with the penalty growing harsher for further-away predictions as demonstrated in fig \ref{fig:cross-entropy:1}.\\
 	For a vector of predictions $\bm{\hat{y}}$ and a one-hot target vector $\bm{y}$, the cross-entropy loss is:
 	\begin{equation} \label{cross-entropy:1}
@@ -98,8 +102,9 @@
 	\end{figure}
 	
 	\subsubsection{Mean-Squared Error (L2)}
-	%TODO WORDS
-	Mean-squared error is used for regression tasks, where the objective is to predict a value - or set of values - whereby the target is a quantitative value rather than a measure of probability. L2 loss is ideal for tasks of this sort as when modelling a noisy relationship between inputs and outputs,  TODO WORDS. \\
+	\textbf{TODO: BETTER WORDS} \\
+	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. As L2 loss minimises the average error across a task, the system learns to make predictions which lie in the mean position of these the, which is ideal for regression tasks \\
+	\textbf{TODO: REPLACE THESE WORDS} \\
 	The name mean-squared error is quite descriptive, as it computed by calculating the mean of the squared error between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$. \\
 	\begin{equation} \label{mean-squared-error:1}
 	L2(\hat{\bm{y}}, \bm{y}) = \sum_{k=1}^{N}(y_k - \hat{y}_k)^2
@@ -109,14 +114,21 @@
 	- Gradient descent \\
 		- Why \\
 		- How \\
-	% TODO: Week 2
+	
 	\subsection{SGD}
+	\textbf{TODO: Week 2} \\
 	- Why use Sgd
 	
-	% TODO: Week 2
+
 	\subsection{Backprop}
-	% TODO: Week 2
-	\subsection{Auto optimizers like ADAM and RMSProp}
+	\textbf{TODO: Week 2} \\
+	\subsection{Adaptive Optimizers}
+	\subsubsection{SGD with Momentum}
+	\subsubsection{Nesterov Accelerated Gradient}
+	\subsubsection{Adagrad}
+	\subsubsection{Adadelta}
+	\subsubsection{RMSprop}
+	\subsubsection{Adam}
 	
 	\section{Dealing with Small Training Data Sets}
 	\subsection{Overfitting}
