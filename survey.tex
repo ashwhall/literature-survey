@@ -47,7 +47,7 @@
 	\textbf{TODO: Week 2} \\
 	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
 	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\
-	There are a multitude of supervised and unsupervised learning problems, but as with almost all meta-learning strategies I will focus primarily on the supervised task of image classification.
+	There are a multitude of supervised and unsupervised learning problems, but as with almost all meta-learning strategies I will focus primarily on the supervised task of image classification using neural networks.
 	
 
 	\section{Optimisation}
@@ -103,13 +103,13 @@
 	
 	\subsubsection{Mean-Squared Error (L2)}
 	\textbf{TODO: BETTER WORDS} \\
-	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. As L2 loss minimises the average error across a task, the system learns to make predictions which lie in the mean position of these the, which is ideal for regression tasks \\
-	\textbf{TODO: REPLACE THESE WORDS} \\
-	The name mean-squared error is quite descriptive, as it computed by calculating the mean of the squared error between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$. \\
+	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. L2 loss minimises the average error between between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$, the system learns to make predictions which lie in the mean position of these, which is generally ideal for regression tasks where there is one solution.\\
 	\begin{equation} \label{mean-squared-error:1}
 	L2(\hat{\bm{y}}, \bm{y}) = \sum_{k=1}^{N}(y_k - \hat{y}_k)^2
 	\end{equation}
-	- What loss is \\
+	
+	\subsection{Neural Networks}
+	Neural networks are a machine learning architecture that were inspired by the functioning of biological neural networks found in the brain. Studies 
 	- Loss curve \\
 	- Gradient descent \\
 		- Why \\
