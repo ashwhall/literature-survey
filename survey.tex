@@ -38,7 +38,7 @@
 	
 	\chapter{Background}
 	\textbf{TODO: Week 2} \\
-	\section{Hand Engineered vs Learnt Features}
+	\section{Hand Engineered and Learnt Features}
 	\textbf{TODO: Week 2} \\
 	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. \\
 	A fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner.
@@ -68,8 +68,7 @@
 	The softmax function (eq \ref{softmax:1}) squashes the arbitrary scores into a vector such that its values sum to $1$ and are each in the range $[0, 1]$. The resultant values can be interpreted as the probability of the input image falling into each of the classes. \\
 	
 	\subsubsection{Cross-Entropy Loss}	
-	With the machine learning system producing a normalised probability distribution across classes, those values need be compared with the targets to produce a scalar loss value.
-	\textbf{TODO TURN INTO WORDS} \\
+	With the machine learning system producing a normalised probability distribution across classes, those values need be compared with the targets to produce a scalar loss value. 
 	Cross-entropy loss, otherwise known as \textit{log loss}, penalises for differences between predicted values and targets, with the penalty growing harsher for further-away predictions as demonstrated in fig \ref{fig:cross-entropy:1}.\\
 	For a vector of predictions $\bm{\hat{y}}$ and a one-hot target vector $\bm{y}$, the cross-entropy loss is:
 	\begin{equation} \label{cross-entropy:1}
@@ -102,21 +101,32 @@
 	\end{figure}
 	
 	\subsubsection{Mean-Squared Error (L2)}
-	\textbf{TODO: BETTER WORDS} \\
-	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. L2 loss minimises the average error between between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$, the system learns to make predictions which lie in the mean position of these, which is generally ideal for regression tasks where there is one solution.\\
+	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. As L2 loss minimises the average error between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$, the system learns to make predictions which lie in the mean position of these, which is generally ideal for regression tasks where there is one solution.\\
 	\begin{equation} \label{mean-squared-error:1}
 	L2(\hat{\bm{y}}, \bm{y}) = \sum_{k=1}^{N}(y_k - \hat{y}_k)^2
 	\end{equation}
 	
-	\subsection{Neural Networks}
-	Neural networks are a machine learning architecture that were inspired by the functioning of biological neural networks found in the brain. Studies 
-	- Loss curve \\
-	- Gradient descent \\
-		- Why \\
-		- How \\
+	\section{Neural Networks}
+	Artifical Neural networks (\textit{ANNs}) are machine learning systems loosely inspired by the functioning of the biological neural networks of the brain. They are composed of artificial neurons which transmit signals from one another in the form of a non-linear function of the sum of the incoming inputs.\\
+	\textbf{TODO THE FOLLOWING} \\
+	- Explain why linearity sucks
+	- Explain give motivation for layers
+	- Describe activation functions \\
+	If we look at the structure of a generic neuron $f_1$ (\textbf{see fig TODO}) we see that it is composed of two components - a weight $w_1$ and a bias $b_2$. Passing a value $x$ through a neuron $f_1$ is equivalent to computing the linear function $f_1(x) = w_1x + b_1$. \\
+	If the outputs of this neuron are passed into a similar neuron $f_2$, we end up with the composite function 
+	\begin{align}
+	(f_2\circ f_1)(x) &= (w_2(w_1x + b_1) + b_2) \\
+	&= w_2w_1x + b_1w_2 + b_2	
+	\end{align}
+	which is still a linear function of $x$. This is true no matter how many neurons in a row, meaning that any number of linear-function neurons are only as good as one. \\
 	
 	\subsection{SGD}
 	\textbf{TODO: Week 2} \\
+	ANNs typically use gradient-descent for their optimization, which is the process of blah blah loss curve etc.
+	- Gradient descent \\
+	- Loss curve \\
+	- Why \\
+	- How \\
 	- Why use Sgd
 	
 
