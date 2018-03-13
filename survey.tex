@@ -4,11 +4,13 @@
 \usepackage{bm}
 \usepackage{pgfplots}
 \usepackage{ amssymb }
+\usepackage{color,soul}
 
 %opening
-\title{}
+\title{Literature Survey - (Title pending)}
 \author{Ash}
 
+\newcommand{\TODO}[1]{\sethlcolor{pink}\hl{(#1)}}
 \begin{document}
 	
 	\maketitle
@@ -37,23 +39,23 @@
 	
 	
 	\chapter{Background}
-	\textbf{TODO: Week 2} \\
+	\TODO{Week 2} \\
 	\section{Hand Engineered and Learnt Features}
-	\textbf{TODO: Week 2} \\
+	\TODO{Week 2} \\
 	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. \\
 	A fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner.
 
 	\section{Supervised Learning}
-	\textbf{TODO: Week 2} \\
+	\TODO{Week 2} 
 	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
 	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\
 	There are a multitude of supervised and unsupervised learning problems, but as with almost all meta-learning strategies I will focus primarily on the supervised task of image classification using neural networks.
 	
 
 	\section{Optimisation}
-	\textbf{TODO: Week 2} \\
-	\subsection{Loss}
-	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how "badly" the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for localisation. \\
+	\TODO{Week 2}
+	\subsection{Loss} \label{loss:1}
+	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how ``badly'' the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for localisation. \\
 	
 	\subsubsection{Symbols}
 	Before discussing loss functions, it's important to understand the inputs and outputs of a machine learning system when performing image classification. \\
@@ -63,7 +65,7 @@
 	\subsubsection{Softmax}
 	As the system's outputs aren't normalised and thus cannot be interpreted as a true confidence measure, the outputs normally go through a softmax function $\sigma$.
 	\begin{equation} \label{softmax:1}
-	\sigma(\bm{\hat{y}})_i = \frac{e^{\hat{y}_i}}{\sum_{k=1}^{N}e^{\hat{y}_i}} \\
+	 \sigma(\bm{\hat{y}})_i = \frac{e^{\hat{y}_i}}{\sum_{k=1}^{N}e^{\hat{y}_i}} \\
 	\end{equation}                                                              
 	The softmax function (eq \ref{softmax:1}) squashes the arbitrary scores into a vector such that its values sum to $1$ and are each in the range $[0, 1]$. The resultant values can be interpreted as the probability of the input image falling into each of the classes. \\
 	
@@ -72,11 +74,11 @@
 	Cross-entropy loss, otherwise known as \textit{log loss}, penalises for differences between predicted values and targets, with the penalty growing harsher for further-away predictions as demonstrated in fig \ref{fig:cross-entropy:1}.\\
 	For a vector of predictions $\bm{\hat{y}}$ and a one-hot target vector $\bm{y}$, the cross-entropy loss is:
 	\begin{equation} \label{cross-entropy:1}
-	H(\bm{\hat{y}}, \bm{y}) = - \sum_{k=1}^{N}y_k log(\hat{y}_k) \\
+	 H(\bm{\hat{y}}, \bm{y}) = - \sum_{k=1}^{N}y_k log(\hat{y}_k) \\
 	\end{equation}  
 	For the special case of \textit{binary} cross-entropy (as shown in fig \ref{fig:cross-entropy:1}) where number of classes $N$ is 2, the network's outputs are generally reduced to a single scalar value and cross entropy calculated as:
 	\begin{equation} \label{cross-entropy:2}
-	H(\hat{y}, y) = -(y log(\hat{y}) + (1 - y)log(1-\hat{y})
+	 H(\hat{y}, y) = -(y log(\hat{y}) + (1 - y)log(1-\hat{y})
 	\end{equation}
 	\begin{figure}[!h]
 		\centering
@@ -103,35 +105,95 @@
 	\subsubsection{Mean-Squared Error (L2)}
 	Mean-squared error is used for regression tasks, where the objective is to predict a quantitative value rather than a measure of probability. As L2 loss minimises the average error between the predictions $\bm{\hat{y}}$ and targets $\bm{y}$, the system learns to make predictions which lie in the mean position of these, which is generally ideal for regression tasks where there is one solution.\\
 	\begin{equation} \label{mean-squared-error:1}
-	L2(\hat{\bm{y}}, \bm{y}) = \sum_{k=1}^{N}(y_k - \hat{y}_k)^2
+	 L2(\hat{\bm{y}}, \bm{y}) = \sum_{k=1}^{N}(y_k - \hat{y}_k)^2
 	\end{equation}
 	
 	\section{Neural Networks}
-	Artifical Neural networks (\textit{ANNs}) are machine learning systems loosely inspired by the functioning of the biological neural networks of the brain. They are composed of artificial neurons which transmit signals from one another in the form of a non-linear function of the sum of the incoming inputs.\\
-	\textbf{TODO THE FOLLOWING} \\
-	- Explain why linearity sucks
-	- Explain give motivation for layers
-	- Describe activation functions \\
-	If we look at the structure of a generic neuron $f_1$ (\textbf{see fig TODO}) we see that it is composed of two components - a weight $w_1$ and a bias $b_2$. Passing a value $x$ through a neuron $f_1$ is equivalent to computing the linear function $f_1(x) = w_1x + b_1$. \\
-	If the outputs of this neuron are passed into a similar neuron $f_2$, we end up with the composite function 
+	Artifical Neural Networks (\textit{ANNs}) are machine learning systems loosely inspired by the functioning of the biological neural networks of the brain. They are composed of artificial neurons which transmit signals from one another in the form of a non-linear function of the sum of the incoming inputs. ANNs model unknown functions of arbitrary complexity, with their representational power a function of their size. \par
+	If we look at the structure of the simplest neuron possible $f_1$ (see fig \TODO{make figure}) we see that it is composed of two components - a weight $w_1$ and a bias $b_1$. Passing a value $x$ through a neuron $f_1$ is equivalent to computing the linear function $f_1(x) = w_1x + b_1$.
+	If the outputs of this neuron are then passed into a similar neuron $f_2$, we end up with the composite function 
 	\begin{align}
-	(f_2\circ f_1)(x) &= (w_2(w_1x + b_1) + b_2) \\
-	&= w_2w_1x + b_1w_2 + b_2	
+	 (f_2\circ f_1)(x) &= (w_2(w_1x + b_1) + b_2) \\
+	 &= w_2w_1x + b_1w_2 + b_2	
 	\end{align}
-	which is still a linear function of $x$. This is true no matter how many neurons in a row, meaning that any number of linear-function neurons are only as good as one. \\
+	which is still a linear function of $x$. This is true for any number of sequential neurons, meaning that any composition of linear neurons is only as good as a single neuron. Having the capacity to produce linear relationships is only useful if the function being modelled is, itself, a linear function. For more complex modelling tasks -- which are encountered more often than not -- non-linearities need to be introduced into the network. In making a neuron a non-linear function, the problem with composite functions noted above no-longer exists; adding additional neurons increases the representational power of the model. \par
 	
-	\subsection{SGD}
-	\textbf{TODO: Week 2} \\
-	ANNs typically use gradient-descent for their optimization, which is the process of blah blah loss curve etc.
-	- Gradient descent \\
-	- Loss curve \\
-	- Why \\
-	- How \\
-	- Why use Sgd
-	
+	\subsection{Activation Functions / Non-Linearities}
+	Activation functions (also known as non-linearities) are a critical component of neural networks as they add the capacity to model non-linear relationships. The inspiration for activation functions is drawn -- once again -- from the operation of biological neural networks, whereby neurons are only ``activated'' given sufficient input signal. In modern neural networks there are only a few activation functions regularly used: \par
 
-	\subsection{Backprop}
-	\textbf{TODO: Week 2} \\
+
+	\begin{itemize}
+		\item\textbf{Sigmoid} $= \frac{1}{1 + e^{-x}}$ : The Sigmoid activation function (also known as the \textit{logistic function}) has the nice property that $(\forall x \in \mathbb{R}) Sigmoid(x)\in(0, 1)$ which is useful as a way of normalising values, especially when the output is to be interpreted as a probability.
+		
+		\item\textbf{TanH} $= \frac{e^{2x} - 1}{e^{2x} + 1}$ : The hyperbolic tangent function also maps numbers to the range $(0, 1)$, but it represents a different relationship as the shape of the curve differs from Sigmoid.
+		
+		\item\textbf{ReLU} $= \begin{cases}
+		0, & \text{if } x < 0 \\
+		x, & \text{if } x \ge 0 \\
+		\end{cases}$
+		The Rectified Linear Unit maps numbers to the range $[0, \infty)$ and has the advantage that it is much more computationally efficient than the above two activation functions; in most cases it yields better results.
+		\item\textbf{Leaky ReLU} $= \begin{cases}
+		0.01x, & \text{if } x < 0 \\
+		x, & \text{if } x \ge 0 \\
+		\end{cases}$
+		The Leaky Rectified Linear Unit operates like ReLU, but allows numbers less than zero to ``leak'' through - this is helpful during \textit{backpropogation}, which is discussed at length in \TODO{Link chapter}.
+	\end{itemize}
+
+	\subsection{Fully-Connected Layers}
+	The arrangement and structure of neurons discussed thus far hasn't been very practical, in that we were only considering a chain of continuous neurons one after another with only one input and output. For a system consisting of multiple inputs, we want to allow interactions between them. This is achieved by what's known as a \textit{Fully-Connected Layer} of neurons, where each output from the previous layer is passed as input to each of the following layer's neurons. Networks are generally grouped into layers to provide a nice abstraction away from the hundreds or thousands of neurons inside, see fig \TODO{Create a nice picture of this}. \par
+
+	\subsection{Stochastic Gradient Descent (SGD)} \label{sgd:1}
+	\TODO{Week 2} \\
+	An ANN begins with randomly generated weights and biases $\bm{W}$ and $\bm{B}$, which are collectively referred to as the ``parameters'' or ``weights'' and indicated by $\bm{\theta}$. The objective of an ANN is to select weights $\bm{\theta}$ that minimise the error computed by the loss function $\mathcal{L}$ (sec \ref{loss:1}). Linear functions $f(\bm{x}, \bm{\theta})$ can be minimised by analaytical techniques, but complex neural networks must be iteratively optimised by numerical methods. \\
+	\TODO{Put in the argmax/minimisation objective function} \par
+	With the loss between a prediction $\hat{y}$ and target $y$, we can compute the gradients of the parameters and make a small step in the direction which will reduce the loss for the given example (see fig \TODO{make loss surface figure}). When performing this operation over the entire data-set at once, this is known as gradient descent. This is usually not an option as the computational resources required for full gradient descent are prohibitive. If we instead repeat this operation for different examples until we have stabilised the loss to a low value, we have Stochastic Gradient Descent. The most common variant to this technique is known as Batch Gradient Descent, where instead of computing the loss and performing an update to the parameters on a per-example basis, the process is applied once per \textit{batch} of examples. It facilitates more stable learning, as the loss doesn't fluctuate as much as between single examples. Batch Gradient Descent is the basis for most ANN optimisation, although we'll discuss modern variants in section \TODO{link section}. \par
+
+	\subsection{Gradients and Backpropagation}
+	\TODO{Week 2} \\
+	We shall consider a general ANN $\sigma$ with $2$ fully-connected layers $f_1, f_2$ parameterised by $\bm{\theta} = \{\bm{\theta}_1, \bm{\theta}_2\}$ which can be represented as:
+	\begin{align} \label{gradients:1}
+	 \bm{\hat{y}} = \sigma(\bm{x}, \bm{\theta}) = f_2(f_1(\bm{x},  \bm{\theta}_1), \bm{\theta}_2)
+	\end{align}
+	That is, the input $\bm{x}$ is fed through layer $f_1$ then $f_2$. We will also consider an arbitrary loss function $\mathcal{L}$ which compares the predictions $\bm{\hat{y}}$ with targets $\bm{y}$ and produces a scalar loss value:
+	\TODO{Re-watch the cs231n class on backprop}
+	\begin{align}
+	 \mathcal{L}(\bm{\hat{y}}, \bm{y})
+	\end{align}
+	As the input $\bm{x}$ and target $\bm{y}$ is fixed, we may only change the parameters $\bm{\theta}$ to improve the loss. As explained in sec \ref{sgd:1}, we wish to make incremental changes to our parameters where each change decreases our loss value. We do so by computing the gradient of the parameters with respect to the loss value:
+	\begin{align}
+	 \frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
+	 {\partial\bm{\theta}}
+	\end{align}
+	Let $\bm{\hat{y}}_i$ be the outputs for layer $i$ and substitute that into eqn \ref{gradients:1} we have:
+	\begin{align}
+	 \frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
+	 {\partial\bm{\theta}} = 
+	 \frac{\partial\mathcal{L}(f_2(f_1(\bm{x}, \bm{\theta}_1), \bm{\theta}_2),\bm{y})}{\partial\bm{\theta}} = 	 \frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\theta}} 
+	\end{align}
+	 which can be decomposed using the chain rule:
+	\begin{align}
+	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\theta}} =
+	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
+	{\partial\bm{\hat{y}}_2}
+	\frac{\partial\bm{\hat{y}}_2}
+	{\partial\bm{\theta}} 
+	\end{align}
+	For a layer-- the type of layer is unimportant for our explanation -- the derivative is known, and as such, $\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\hat{y}}_2}$ can be directly computed. The second term $\frac{\partial\bm{\hat{y}}_2}{\partial\bm{\theta}}$ cannot be so easily computed, and need be expanded:
+	\begin{align}
+	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
+	{\partial\bm{\hat{y}}_2}
+	\frac{\partial\bm{\hat{y}}_2}
+	{\partial\bm{\theta}} = 
+	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
+	{\partial\bm{\hat{y}}_2}
+	\frac{\partial\bm{\hat{y}}_2}
+	{\partial\bm{\theta}}
+	\end{align}
+	 
+	 
+	 
+	
+	
 	\subsection{Adaptive Optimizers}
 	\subsubsection{SGD with Momentum}
 	\subsubsection{Nesterov Accelerated Gradient}
