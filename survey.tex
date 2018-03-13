@@ -4,7 +4,9 @@
 \usepackage{bm}
 \usepackage{pgfplots}
 \usepackage{ amssymb }
-\usepackage{color,soul}
+\usepackage{color, soul}
+\usepackage{biblatex}
+\addbibresource{references.bib}
 
 %opening
 \title{Literature Survey - (Title pending)}
@@ -125,7 +127,7 @@
 	\begin{itemize}
 		\item\textbf{Sigmoid} $= \frac{1}{1 + e^{-x}}$ : The Sigmoid activation function (also known as the \textit{logistic function}) has the nice property that $(\forall x \in \mathbb{R}) Sigmoid(x)\in(0, 1)$ which is useful as a way of normalising values, especially when the output is to be interpreted as a probability.
 		
-		\item\textbf{TanH} $= \frac{e^{2x} - 1}{e^{2x} + 1}$ : The hyperbolic tangent function also maps numbers to the range $(0, 1)$, but it represents a different relationship as the shape of the curve differs from Sigmoid.
+		\item\textbf{TanH} $= \frac{e^{2x} - 1}{e^{2x} + 1}$ : The hyperbolic tangent function is similar to sigmoid, but maps numbers to the range $(-1, 1)$.
 		
 		\item\textbf{ReLU} $= \begin{cases}
 		0, & \text{if } x < 0 \\
@@ -136,62 +138,61 @@
 		0.01x, & \text{if } x < 0 \\
 		x, & \text{if } x \ge 0 \\
 		\end{cases}$
-		The Leaky Rectified Linear Unit operates like ReLU, but allows numbers less than zero to ``leak'' through - this is helpful during \textit{backpropogation}, which is discussed at length in \TODO{Link chapter}.
+		The Leaky Rectified Linear Unit operates like ReLU, but allows numbers less than zero to ``leak'' through - this is helpful during \textit{backpropogation}, which is discussed at length in section \ref{backprop:1}.
 	\end{itemize}
 
 	\subsection{Fully-Connected Layers}
-	The arrangement and structure of neurons discussed thus far hasn't been very practical, in that we were only considering a chain of continuous neurons one after another with only one input and output. For a system consisting of multiple inputs, we want to allow interactions between them. This is achieved by what's known as a \textit{Fully-Connected Layer} of neurons, where each output from the previous layer is passed as input to each of the following layer's neurons. Networks are generally grouped into layers to provide a nice abstraction away from the hundreds or thousands of neurons inside, see fig \TODO{Create a nice picture of this}. \par
+	The arrangement and structure of neurons discussed thus far hasn't been very practical, in that we were only considering a chain of continuous neurons one after another with only one input and output. Neurons will typically receive multiple inputs and produce a weighted sum of those inputs. A neuron given $N$ inputs $x_i$ with weights $w_i$ and bias $b$ would then form the linear equation $w_1x_1 + w_2x_2 + ... + w_Nx_N + b$. \par
+	For a system consisting of multiple inputs, we want to allow diverse interactions between them. This is achieved by what's known as a \textit{Fully-Connected Layer} of neurons, where each output from the previous layer is passed as input to each of the following layer's neurons. Networks are generally grouped into layers to provide a nice abstraction away from the hundreds or thousands of neurons inside, see fig \TODO{Create a nice picture of this}. \par
 
 	\subsection{Stochastic Gradient Descent (SGD)} \label{sgd:1}
 	\TODO{Week 2} \\
-	An ANN begins with randomly generated weights and biases $\bm{W}$ and $\bm{B}$, which are collectively referred to as the ``parameters'' or ``weights'' and indicated by $\bm{\theta}$. The objective of an ANN is to select weights $\bm{\theta}$ that minimise the error computed by the loss function $\mathcal{L}$ (sec \ref{loss:1}). Linear functions $f(\bm{x}, \bm{\theta})$ can be minimised by analaytical techniques, but complex neural networks must be iteratively optimised by numerical methods. \\
+	An ANN begins with randomly generated weights and biases $\bm{W}$ and $\bm{B}$, which are collectively referred to as the ``parameters'' or ``weights'' and indicated by $\bm{\theta}$. The objective of an ANN is to select weights $\bm{\theta}$ that minimise the error computed by the loss function $\mathcal{L}$ (section \ref{loss:1}). Linear functions $f(\bm{x}, \bm{\theta})$ can be minimised by analytical techniques, but complex neural networks must be iteratively optimised by numerical methods. \\
 	\TODO{Put in the argmax/minimisation objective function} \par
-	With the loss between a prediction $\hat{y}$ and target $y$, we can compute the gradients of the parameters and make a small step in the direction which will reduce the loss for the given example (see fig \TODO{make loss surface figure}). When performing this operation over the entire data-set at once, this is known as gradient descent. This is usually not an option as the computational resources required for full gradient descent are prohibitive. If we instead repeat this operation for different examples until we have stabilised the loss to a low value, we have Stochastic Gradient Descent. The most common variant to this technique is known as Batch Gradient Descent, where instead of computing the loss and performing an update to the parameters on a per-example basis, the process is applied once per \textit{batch} of examples. It facilitates more stable learning, as the loss doesn't fluctuate as much as between single examples. Batch Gradient Descent is the basis for most ANN optimisation, although we'll discuss modern variants in section \TODO{link section}. \par
+	With the loss between a prediction $\hat{y}$ and target $y$, we can compute the gradients of the parameters and make a small step in the direction which will reduce the loss for the given example (see fig \TODO{make loss surface figure}). When performing this operation over the entire data-set at once, this is known as gradient descent. This is usually not an option as the computational resources required for full gradient descent are prohibitive. If we instead repeat this operation for different examples until we have stabilised the loss to a low value, we have Stochastic Gradient Descent. The most common variant to this technique is known as Batch Gradient Descent, where instead of computing the loss and performing an update to the parameters on a per-example basis, the process is applied once per \textit{batch} of examples. It facilitates more stable learning, as the loss doesn't fluctuate as much as between single examples. Batch Gradient Descent is the basis for most ANN optimisation, although we'll discuss modern variants in section \ref{modern-dl:1}. \par
 
-	\subsection{Gradients and Backpropagation}
+	\subsection{Gradients and Backpropagation} \label{backprop:1}
 	\TODO{Week 2} \\
 	We shall consider a general ANN $\sigma$ with $2$ fully-connected layers $f_1, f_2$ parameterised by $\bm{\theta} = \{\bm{\theta}_1, \bm{\theta}_2\}$ which can be represented as:
 	\begin{align} \label{gradients:1}
 	 \bm{\hat{y}} = \sigma(\bm{x}, \bm{\theta}) = f_2(f_1(\bm{x},  \bm{\theta}_1), \bm{\theta}_2)
 	\end{align}
 	That is, the input $\bm{x}$ is fed through layer $f_1$ then $f_2$. We will also consider an arbitrary loss function $\mathcal{L}$ which compares the predictions $\bm{\hat{y}}$ with targets $\bm{y}$ and produces a scalar loss value:
-	\TODO{Re-watch the cs231n class on backprop}
 	\begin{align}
 	 \mathcal{L}(\bm{\hat{y}}, \bm{y})
 	\end{align}
-	As the input $\bm{x}$ and target $\bm{y}$ is fixed, we may only change the parameters $\bm{\theta}$ to improve the loss. As explained in sec \ref{sgd:1}, we wish to make incremental changes to our parameters where each change decreases our loss value. We do so by computing the gradient of the parameters with respect to the loss value:
+	As the input $\bm{x}$ and target $\bm{y}$ is fixed, we may only change the parameters $\bm{\theta}$ to improve the loss. As explained in section \ref{sgd:1}, we wish to make incremental changes to our parameters where each change decreases our loss value. We do so by computing the gradient of the parameters with respect to the loss value:
 	\begin{align}
 	 \frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
 	 {\partial\bm{\theta}}
 	\end{align}
-	Let $\bm{\hat{y}}_i$ be the outputs for layer $i$ and substitute that into eqn \ref{gradients:1} we have:
+	If we are to find the gradients of the loss function with respect to the final layer's weights, we will have the equation
 	\begin{align}
-	 \frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
-	 {\partial\bm{\theta}} = 
-	 \frac{\partial\mathcal{L}(f_2(f_1(\bm{x}, \bm{\theta}_1), \bm{\theta}_2),\bm{y})}{\partial\bm{\theta}} = 	 \frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\theta}} 
+	\frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
+	{\partial\bm{\theta}_2}
 	\end{align}
-	 which can be decomposed using the chain rule:
+	which is considered to be easily calculable. However, if we wish to find the gradient of weights further towards the start of the network, we cannot work those out directly and instead need to make use of the differentiation chain rule: \par
 	\begin{align}
-	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\theta}} =
-	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
-	{\partial\bm{\hat{y}}_2}
-	\frac{\partial\bm{\hat{y}}_2}
-	{\partial\bm{\theta}} 
+	\frac{\partial f}{\partial x} = \frac{\partial f}{\partial u} \frac{\partial u}{\partial x}
 	\end{align}
-	For a layer-- the type of layer is unimportant for our explanation -- the derivative is known, and as such, $\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}{\partial\bm{\hat{y}}_2}$ can be directly computed. The second term $\frac{\partial\bm{\hat{y}}_2}{\partial\bm{\theta}}$ cannot be so easily computed, and need be expanded:
+	To find the gradient of the loss function with respect to the first layer's weights, and considering that $\frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
+	{\partial\bm{\theta}_2}$ is calculable, we simply need apply the chain rule as such:
 	\begin{align}
-	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
-	{\partial\bm{\hat{y}}_2}
-	\frac{\partial\bm{\hat{y}}_2}
-	{\partial\bm{\theta}} = 
-	\frac{\partial\mathcal{L}(\bm{\hat{y}}_2,\bm{y})}
-	{\partial\bm{\hat{y}}_2}
-	\frac{\partial\bm{\hat{y}}_2}
-	{\partial\bm{\theta}}
+	\frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}{\partial\bm{\theta}_1} =
+	\frac{\partial\mathcal{L}(\bm{\hat{y}},\bm{y})}
+	{\partial\bm{\theta}_2}
+	\frac{\partial\bm{\theta}_2}
+	{\partial\bm{\theta}_1} 
 	\end{align}
+	That is, once we know the gradient of the loss with respect to the second layer's weights, we can compute the gradient of the second layer's weights with respect to the first layer's weights and multiply the two to find the gradient of the loss with respect to the first layer's weights. This generalises to neural networks with any number of layers of differing types. This is an intuitive relationship, as if we are essentially computing the compound contribution that a change in any one parameter's value will have on the final output -- the loss.  \par
+	This technique used since the 1970s \cite{888} is aptly named \textit{backpropagation of error gradient}, as it involves the propagation of the gradient of the error -- or loss -- from the end of the network back. \par
+	Returning to the concept of SGD (section \ref{sgd:1}) which was introduced on a conceptual level, we can now delve deeper into the application of the algorithm. Assuming that we have computed the gradient of each parameter in the network for the given examples in our batch, we can visualise this as a ``loss landscape'', whereby moving the parameters down-hill results in a reduction in the loss. We will consider a low-dimensional example, where we only have a \TODO{verify} single parameter (fig \TODO{make a figure}). \par
+	Adjusting a parameter by the negative of the scaled gradient will result in a ``step'' the moves that parameter closer to a local minimum, with the objective to reach the lowest point possible. \\
+	PROBLEMS:
+	- Too large a step size
+	- noise in the batches
 	 
-	 
-	 
+	 	
 	
 	
 	\subsection{Adaptive Optimizers}
@@ -210,7 +211,7 @@
 	\textit{Break into meta training, testing, episodes, etc.}
 	\section{Continuous Learning}
 	\textit{Catastrophic forgetting}
-	\section{Modern Deep Learning Architectures}
+	\section{Modern Deep Learning Architectures} \label{modern-dl:1}
 	\subsection{Convolutional Neural Networks}
 	\subsection{Recurrent Neural Networks}
 	
@@ -224,6 +225,8 @@
 	
 	\chapter{Proposal}
 	
+	
+	\printbibliography
 
 
 \end{document}
