@@ -5,7 +5,7 @@
 \usepackage{pgfplots}
 \usepackage{ amssymb }
 \usepackage{color, soul}
-\usepackage{biblatex}
+\usepackage[backend=biber]{biblatex}
 \addbibresource{references.bib}
 
 %opening
@@ -184,24 +184,63 @@
 	\frac{\partial\bm{\theta}_2}
 	{\partial\bm{\theta}_1} 
 	\end{align}
-	That is, once we know the gradient of the loss with respect to the second layer's weights, we can compute the gradient of the second layer's weights with respect to the first layer's weights and multiply the two to find the gradient of the loss with respect to the first layer's weights. This generalises to neural networks with any number of layers of differing types. This is an intuitive relationship, as if we are essentially computing the compound contribution that a change in any one parameter's value will have on the final output -- the loss.  \par
-	This technique used since the 1970s \cite{888} is aptly named \textit{backpropagation of error gradient}, as it involves the propagation of the gradient of the error -- or loss -- from the end of the network back. \par
-	Returning to the concept of SGD (section \ref{sgd:1}) which was introduced on a conceptual level, we can now delve deeper into the application of the algorithm. Assuming that we have computed the gradient of each parameter in the network for the given examples in our batch, we can visualise this as a ``loss landscape'', whereby moving the parameters down-hill results in a reduction in the loss. We will consider a low-dimensional example, where we only have a \TODO{verify} single parameter (fig \TODO{make a figure}). \par
-	Adjusting a parameter by the negative of the scaled gradient will result in a ``step'' the moves that parameter closer to a local minimum, with the objective to reach the lowest point possible. \\
-	PROBLEMS:
-	- Too large a step size
-	- noise in the batches
-	 
-	 	
+	That is, once we know the gradient of the loss with respect to the second layer's weights, we can compute the gradient of the second layer's weights with respect to the first layer's weights and multiply the two to find the gradient of the loss with respect to the first layer's weights. This generalises to neural networks with any number of layers of differing types. This is an intuitive relationship, as we are essentially calculating the compound contribution that a change in any one parameter's value will have on the final output -- the loss.  \par
+	This technique used since the 1970s \parencite{backprop} is aptly named \textit{backpropagation of error gradient}, as it involves the propagation of the gradient of the error -- or loss -- from the end of the network back. \par
+	Returning to the concept of SGD (section \ref{sgd:1}) which was introduced on a conceptual level, we can now delve deeper into the application of the algorithm. Assuming that we have computed the gradient of each parameter in the network for the given examples in our batch, we can visualise this as a ``loss landscape'', whereby moving the parameters down-hill results in a reduction in the loss. Adjusting a parameter by the negative of the gradient will result in a ``step'' that moves the parameter closer to a local minimum, with the objective to reach the lowest point possible. A configurable hyperparameter is the \textit{learning-rate}, commonly represented by $\alpha$, which is the ``size'' of the step to take - that is, the coefficient of the negative of the gradient to apply. \par
+	\begin{align}
+		\bm{\theta} = \bm{\theta} - \alpha \Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta}, \bm{\hat{y}}, \bm{y})
+	\end{align}
+	\textit{For brevity we will from now write the gradient of the parameters $\bm{\theta}$ with respect to the loss function $\mathcal{L}$ as $\Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta})$.} \\
+	The problem that is quickly encountered is how large a value to set the learning rate $\alpha$. Too small a step and it will take a long time to reach the minimum; too large and you may over-shoot it  (see fig \TODO{make a figure}). The example in  (fig \TODO{make a figure}) is a very low-dimensional loss landscape where the corect direction to move seems very logical, but higher dimensional spaces with a greater number of parameters result in complex landscapes with many local minima. We also want to slow down when nearing the bottom of a minimum so we can properly reach the lowest point. If we take this into consideration, and the fact that for any mini-batch the loss landscape will be different due to noise in small sample sizes, choosing a fixed learning rate becomes problematic. In practice, many people simply set up a learning rate schedule, where they decrease the learning rate at intervals, but it is hard to get right. It is with this in mind that adaptive optimizers came about. \\
 	
 	
 	\subsection{Adaptive Optimizers}
+	If we consider a data-set whereby each mini-batch has some noise but that there is an optimal parameterisation for the entire set, we could visualise the loss landscape as shifting slightly for each mini-batch, but where there is a common direction towards which most samples will lead. Standard SGD will just apply a fixed step-size for all updates which leads the parameters to oscillate along the greatest descent angle, regardless of past updates. \par
+	
 	\subsubsection{SGD with Momentum}
-	\subsubsection{Nesterov Accelerated Gradient}
+	It is with the idea of a consistent optimization direction that momentum comes into play. This is a technique of updating parameters while taking past updates into consideration to find the ``common direction'' in which to move. This is done by using an update vector which intuitively acts like the momentum of a ball rolling down a hill. For any update step, the direction vector is updated with a scaled contribution from the current gradient direction, and that vector is used to update the parameters. It essentially dampens oscillating movement, as the direction vector compounds contributions in the same direction as given in the following equation
+	\begin{align}
+		\bm{v}_t &= \gamma \bm{v}_{t-1} + \alpha \Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta}) \\
+		\bm{\theta}_t &= \bm{\theta}_{t-1} - \bm{v}_t
+	\end{align}
+	where $\gamma$ is the momentum term which indicates how much movement we wish to carry forward from previous time-steps.
+	
+	\subsubsection{Nesterov Accelerated Gradient Descent}
+	If we consider momentum to compound the previous slopes such as a ball rolling down a hill, we end up with a problem where the momentum may cause the parameters to overshoot the minimum. Nesterov Accelerated Gradient Descent pre-emptively considers post-step parameters and makes adjustments to the step \textit{actually} taken. It does so by approximating the position after a momentum parameter update ($\bm{\theta} - \gamma\bm{v}_{t-1}$), and computes the loss gradient not with respect to the current parameters, but to the approximate future position of the parameters. This optimisation strategy essentially glances into the future and makes a pre-emptive correction.
+	\begin{align}
+		\bm{v}_t &= \gamma \bm{v}_{t-1} + \alpha \Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta} - \gamma\bm{v}_{t-1}) \\
+		\bm{\theta}_t &= \bm{\theta}_{t-1} - \bm{v}_t
+	\end{align}
+	
 	\subsubsection{Adagrad}
-	\subsubsection{Adadelta}
-	\subsubsection{RMSprop}
+	Adagrad is the first of the true ``adaptive'' optimizers, in that it adjusts the learning rate on a per-parameter basis, taking past gradients into consideration. The Adagrad update rule is
+	\begin{align} \label{adagrad:1}
+		\theta_{t, i} &= \theta_{t-1, i} - \frac{\gamma}{\sqrt{g_{t, i} + \epsilon}} \mathcal{L}(\theta_{t, i})
+	\end{align}
+	where $\theta_i$ is the $i$th parameter, $\gamma$ is the learning rate, $g_i$ is the square of the sum of the squares of the gradients with respect to $\theta_i$ up to step, $\epsilon$ is a small number to avoid dividing by zero, and $\mathcal{L}(\theta_i)$ is the gradient of the loss with respect to $\theta_i$. This optimizer has the benefit that while rarely performing as well as SGD with well-chosen hyperparameters, the Adagrad's default learning rate of $0.01$ consistently yields very good results.
+	
+	\subsubsection{Adadelta and RMSprop}
+	The accumulation of squared gradients in the denominator of Adagrad means that that the learning rate continues shrinking and eventually becomes small enough to entirely stop training. Adadelta seeks to resolve this by instead of storing the accumulated sum of squared gradients, keeping a running average 
+	\begin{align}
+		E[g^2]_{t, i} = \gamma E[g^2]_{t-1, i} + (1 - \gamma)g^2_{t, i}
+	\end{align}
+	and updating equation \ref{adagrad:1} to be
+	\begin{align}
+		\theta_{t, i} &= \theta_{t-1, i} - \frac{\gamma}{\sqrt{E[g^2]_{t, i} + \epsilon}} \mathcal{L}(\theta_{t, i})
+	\end{align}
+	RMSprop \parencite{rmsprop} is in effect identical to Adadelta, and were both developed to address the diminishing learning rate proplem of Adagrad.
+	
 	\subsubsection{Adam}
+	Adaptive Moment Estimation (Adam) \parencite{adam} builds from the previous adaptive optimizers by not only storing exponentially decaying averages of past squared gradients $v_{t,i}$, but by also keeping an exponentially decaying average of past gradients $m_{t,i}$ -- note the lack of the word ``squared''. 
+	\begin{align}
+		m_{t, i} &= \beta_1 m_{t-1, i} + (1 - \beta_1)g_{t, i} \\
+		v_{t, i} &= \beta_2 v_{t-1, i} + (1 - \beta_2)g^2_{t, i}
+	\end{align}
+	where $\beta_1$, $\beta_2$ are hyperparameters the proportion of past information carried forward, with the default values typically working well in practice. Replacing $E[\bm{g}^2]$ with $\bm{v}$, $\mathcal{L}(\bm{\theta})$ with $\bm{m}$, and a small change to the square-root we end up with
+	\begin{align}
+		\theta_{t, i} = \theta_{t-1, i} - \frac{\gamma}{\sqrt{v_{t, i}} + \epsilon} m_{t, i}
+	\end{align}	
+	While not the most recent (I will omit a few other adaptive optimizers), Adam is rapidly becoming the most frequently used optimizer for its consistent convergence and ease-of-use.
 	
 	\section{Dealing with Small Training Data Sets}
 	\subsection{Overfitting}
@@ -222,11 +261,11 @@
 	\subsection{Metric Based}
 	\subsection{Optimization Based}
 	\section{Continuous Learning}
-	
 	\chapter{Proposal}
-	
-	
+
 	\printbibliography
+	
+	
 
 
 \end{document}
