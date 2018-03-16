@@ -7,13 +7,14 @@
 \usepackage{color, soul}
 \usepackage[backend=biber]{biblatex}
 \addbibresource{references.bib}
+\graphicspath{{images/}}
 
 %opening
 \title{Literature Survey - (Title pending)}
 \author{Ash}
 
-\newcommand{\TODO}[1]{\sethlcolor{pink}\hl{(#1)}}
-\newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{Feedback: \\#1\\}}
+\newcommand{\TODO}[1]{\sethlcolor{pink}\hl{\\(#1)\\}}
+\newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{\\ Feedback: \\#1\\}}
 
 \begin{document}
 	
@@ -28,6 +29,7 @@
 	\newpage
 	
 	\chapter{Introduction}
+	\TODO{Week 11}
 	\textbf{Very brief background}
 	Deep learning good for large data set.
 	Motivation is to work with less training examples \\
@@ -43,27 +45,28 @@
 	
 	
 	\chapter{Background}
-	\TODO{Week 2} \\
-	\FEEDBACK{1. The purpose of this chapter and how it connects to the previous and the next chapter \\
-2. How does this chapter achieve its purpose, like the organization of the chapter, we first talk about this, then this,  etc.}
 	Images are sources of highly-dimensional data for which humans have the incredible ability of understanding. Developing computer vision systems that perform to even a similar capacity to that of humans is an inherently difficult task. The gift of easily converting pixel values into meaningful concepts is a skill that computer vision experts have been attempting to transfer to computers for decades. \par
 	The ability to quickly gain an understanding of a new concept is a uniquely human trait. Consider that after seeing a giraffe only once, most humans would be able to easily identify it in a humorous police line-up  -- perhaps after the theft of a monkey's balloon --  but the best image recognition systems over the years would be dependant on seeing many examples of giraffes. It is quite standard to present hundreds of examples of each new concept in order to learn which parts of the image data are unimportant noise, and which parts are characteristic. \par
 	Modern techniques have made great advances in the application of meta-learning techniques (learning to learn) to few-shot learning; the task of having a computer vision system learn to recognize images from only a few labelled examples. While the results have been very encouraging, the problem of catastrophic forgetting persists. The challenge of continuous learning is to teach new classes to a system without interfering with the previously learnt tasks. \par
+	Following on from the basic domain overview provided in chapter 1, we will now discuss neural-networks more thoroughly, and how advancements in the field have put us in a good position to tackle few-shot and continous learning. First we discuss the motivations for data-driven machine learning, the breadth of applicable tasks, and how these can be achieved. We will end with the problems regularly encountered with small data-sets and how modern architectures seek to resolve these. \par
 	
 	\section{Hand Engineered and Learnt Features}
-	\TODO{Week 2} \\
-	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. \\
-	A fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner.
-	\FEEDBACK{Can you give some example pictures of what hand engineered features look like?}
+	Features are a general term for characteristic attributes which exist across all samples in a data-set or domain. These features were traditionally hand-engineered by machine learning experts, carefully selecting the base-components of which the data-set in question appears to comprise. A common hand-engineered feature is the Histogram of Oriented Gradients (fig \ref{fig:hog:1}), which results in small regions of an image voting on the best description of the local gradient. \par
+	However, a fundamental problem with hand-engineered features is that it imposes human knowledge onto a problem to be solved by a computer. Furthermore, key features for complex data such as images and video are incredibly difficult to ascertain -- especially if desiring generic, transferable features. With the rise of neural networks -- specifically CNNs, which will be discussed in detail later -- feature-learning has become the norm. This essentially takes the task of feature engineering and solves it in a data-driven manner. \par
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=11cm]{hog}
+		\caption{Histogram of Oriented Gradients}
+		\label{fig:hog:1}
+	\end{figure}
+
 	\section{Supervised Learning}
-	\TODO{Week 2} 
-	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \\
-	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. \\ \FEEDBACK{Maybe you can also mention regression.}
+	Supervised learning is a machine learning strategy whereby the target solution is presented after each training iteration. This differs from unsupervised learning in that unsupervised learning has no direct target to learn from and is used to find underlying commonalities or patterns in data. \par
+	Supervised learning is the most commonly used method for image and video tasks, as typically the objective is to perform tasks where the target is well-defined. Common supervised learning tasks are \textit{image classification} - where the objective is to assign an input image a label from a fixed set of categories; \textit{localisation} - where the objective is to produce the coordinates of an object of interest from the input image; and \textit{detection} - which combines the previous two tasks. The task of localisation is actually a specific use-case for \textit{regression}, where the system is to predict a real-valued scalar given some input - used frequently for finance and weather prediction among others. \par
 	There are a multitude of supervised and unsupervised learning problems, but as with almost all meta-learning strategies I will focus primarily on the supervised task of image classification using neural networks. \FEEDBACK{Maybe you can comment on the fact supervised learning is much more successful.}
 	
 
 	\section{Optimisation}
-	\TODO{Week 2}
 	\subsection{Loss} \label{loss:1}
 	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how ``badly'' the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for localisation. \\
 	
@@ -77,12 +80,18 @@
 	\begin{equation} \label{softmax:1}
 	 \sigma(\bm{\hat{y}})_i = \frac{e^{\hat{y}_i}}{\sum_{k=1}^{N}e^{\hat{y}_i}} \\
 	\end{equation}                                                              
-	The softmax function (eq \ref{softmax:1}) squashes the arbitrary scores into a vector such that its values sum to $1$ and are each in the range $[0, 1]$. The resultant values can be interpreted as the probability of the input image falling into each of the classes. \\ \FEEDBACK{Can you give small table which has an example softmax distribution?}
+	The softmax function (eq \ref{softmax:1}) squashes the arbitrary scores into a vector such that its values sum to $1$ and are each in the range $[0, 1]$. The resultant values can be interpreted as the probability of the input image falling into each of the classes. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=12cm]{softmaxplot}
+		\caption{The Softmax function applied to classification outputs}
+		\label{fig:softmax:1}
+	\end{figure}
 	
 	\subsubsection{Cross-Entropy Loss}	
 	With the machine learning system producing a normalised probability distribution across classes, those values need be compared with the targets to produce a scalar loss value. 
 	Cross-entropy loss, otherwise known as \textit{log loss}, penalises for differences between predicted values and targets, with the penalty growing harsher for further-away predictions as demonstrated in fig \ref{fig:cross-entropy:1}.\\
-	For a vector of predictions $\bm{\hat{y}}$ and a one-hot target vector $\bm{y}$, the cross-entropy loss is:
+	For a vector of predictions $\bm{\hat{y}}$ and a one-hot target vector $\bm{y}$, the cross-entropy loss is:r
 	\begin{equation} \label{cross-entropy:1}
 	 H(\bm{\hat{y}}, \bm{y}) = - \sum_{k=1}^{N}y_k log(\hat{y}_k) \\
 	\end{equation}  
@@ -151,16 +160,13 @@
 
 	\subsection{Fully-Connected Layers}
 	The arrangement and structure of neurons discussed thus far hasn't been very practical, in that we were only considering a chain of continuous neurons one after another with only one input and output. Neurons will typically receive multiple inputs and produce a weighted sum of those inputs. A neuron given $N$ inputs $x_i$ with weights $w_i$ and bias $b$ would then form the linear equation $w_1x_1 + w_2x_2 + ... + w_Nx_N + b$. \par
-	For a system consisting of multiple inputs, we want to allow diverse interactions between them. This is achieved by what's known as a \textit{Fully-Connected Layer} of neurons, where each output from the previous layer is passed as input to each of the following layer's neurons. Networks are generally grouped into layers to provide a nice abstraction away from the hundreds or thousands of neurons inside, see fig \TODO{Create a nice picture of this}. \par \FEEDBACK{One of the useful purposes of this is that it allows you to customise to any output size easily.}
+	For a system consisting of multiple inputs, we want to allow diverse interactions between them. This is achieved by what's known as a \textit{Fully-Connected Layer} of neurons, where each output from the previous layer is passed as input to each of the following layer's neurons. Networks are generally grouped into layers to provide a nice abstraction away from the hundreds or thousands of neurons inside. The layer architecture of neural networks means that each layer can be considered a stand-alone block, a black box with a mapping from an input of size $n$ to an output of size $m$ - see fig \TODO{Create a nice picture of this}. \par
 
 	\subsection{Stochastic Gradient Descent (SGD)} \label{sgd:1}
-	\TODO{Week 2} \\
-	An ANN begins with randomly generated weights and biases $\bm{W}$ and $\bm{B}$, which are collectively referred to as the ``parameters'' or ``weights'' and indicated by $\bm{\theta}$. The objective of an ANN is to select weights $\bm{\theta}$ that minimise the error computed by the loss function $\mathcal{L}$ (section \ref{loss:1}). Linear functions $f(\bm{x}, \bm{\theta})$ can be minimised by analytical techniques, but complex neural networks must be iteratively optimised by numerical methods. \\
-	\TODO{Put in the argmax/minimisation objective function} \par
+	An ANN begins with randomly generated weights and biases $\bm{W}$ and $\bm{B}$, which are collectively referred to as the ``parameters'' or ``weights'' and indicated by $\bm{\theta}$. The objective of an ANN is to select weights $\bm{\theta}$ that minimise the error computed by the loss function $\mathcal{L}$ (section \ref{loss:1}). Linear functions $f(\bm{x}, \bm{\theta})$ can be minimised by analytical techniques, but complex neural networks must be iteratively optimised by numerical methods. \par
 	With the loss between a prediction $\hat{y}$ and target $y$, we can compute the gradients of the parameters and make a small step in the direction which will reduce the loss for the given example (see fig \TODO{make loss surface figure}). When performing this operation over the entire data-set at once, this is known as gradient descent. This is usually not an option as the computational resources required for full gradient descent are prohibitive. If we instead repeat this operation for different examples until we have stabilised the loss to a low value, we have Stochastic Gradient Descent. The most common variant to this technique is known as Batch Gradient Descent, where instead of computing the loss and performing an update to the parameters on a per-example basis, the process is applied once per \textit{batch} of examples. It facilitates more stable learning, as the loss doesn't fluctuate as much as between single examples. Batch Gradient Descent is the basis for most ANN optimisation, although we'll discuss modern variants in section \ref{modern-dl:1}. \par
 
 	\subsection{Gradients and Backpropagation} \label{backprop:1}
-	\TODO{Week 2} \\
 	We shall consider a general ANN $\sigma$ with $2$ fully-connected layers $f_1, f_2$ parameterised by $\bm{\theta} = \{\bm{\theta}_1, \bm{\theta}_2\}$ which can be represented as:
 	\begin{align} \label{gradients:1}
 	 \bm{\hat{y}} = \sigma(\bm{x}, \bm{\theta}) = f_2(f_1(\bm{x},  \bm{\theta}_1), \bm{\theta}_2)
@@ -251,25 +257,50 @@
 	While not the most recent (I have omitted a few other adaptive optimizers), Adam is rapidly becoming the most frequently used optimizer for its consistent convergence and ease-of-use.
 	
 	\section{Dealing with Small Training Data Sets}
+	\TODO{Week 3}
+	Gathering a large data-set can be very costly or impractical, with neural-networks regularly requiring hundreds or thousands of examples to learn anything. Due to the difficulty in obtaining data, many attempts have been made to allow the training of neural networks with small data-sets.
 	\subsection{Overfitting}
+	\TODO{Week 3}
+	Likely the biggest problem with training on a small data-set is overfitting, which occurs when a model is trained on a small number of sample images. As mentioned earlier, it is desirable for a system to be shown enough images to determine which aspects of an image are characteristic of the class, and which are noise in the provided sample. Overfitting is when the model learns -- and becomes dependant on -- features specific to the training data provided, but that don't generalise well outside of that. See figure \ref{fig:fitting:1} for an example of a simple classification task.
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=12cm]{fitting}
+		\caption{Levels of fitting for a simple classification task}
+		\label{fig:fitting:1}
+	\end{figure}
 	\subsection{Transfer Learning}
+	\TODO{Week 3}
 	\subsection{Few-Shot Learning}
+	\TODO{Week 3}
 	\subsection{Meta Learning}
+	\TODO{Week 3}
 	\textit{Break into meta training, testing, episodes, etc.}
+	
 	\section{Continuous Learning}
+	\TODO{Week 4}
 	\textit{Catastrophic forgetting}
 	\section{Modern Deep Learning Architectures} \label{modern-dl:1}
+	\TODO{Week 4}
 	\subsection{Convolutional Neural Networks}
+	\TODO{Week 4}
 	\subsection{Recurrent Neural Networks}
+	\TODO{Week 4}
 	
 	\chapter{Related Works}
-	\section{Meta Learning}
+	\TODO{Week 5}
 	Approaches in meta learning with neural networks are generally groupd into three categories.
 	\subsection{Model Based}
+	\TODO{Week 5}
+	
 	\subsection{Metric Based}
+	\TODO{Week 6}
 	\subsection{Optimization Based}
+	\TODO{Week 7}
 	\section{Continuous Learning}
+	\TODO{Week 8}
 	\chapter{Proposal}
+	\TODO{Week 9}
+	\TODO{Week 10}
 
 	\printbibliography
 	
