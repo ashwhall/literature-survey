@@ -15,6 +15,7 @@
 
 \newcommand{\TODO}[1]{\sethlcolor{pink}\hl{\\(#1)\\}}
 \newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{\\ Feedback: \\#1\\}}
+\newcommand{\TOCITE}[1]{\textsuperscript{\underline{citation needed #1}}}
 
 \begin{document}
 	
@@ -259,7 +260,7 @@
 	\begin{align}
 		\theta_{t, i} &= \theta_{t-1, i} - \frac{\gamma}{\sqrt{E[g^2]_{t, i} + \epsilon}} \mathcal{L}(\theta_{t, i})
 	\end{align}
-	RMSprop \parencite{rmsprop} is in effect identical to Adadelta, and were both developed to address the diminishing learning rate proplem of Adagrad.
+	RMSprop \parencite{rmsprop} is in effect identical to Adadelta, and were both developed to address the diminishing learning rate problem of Adagrad.
 	
 	\subsubsection{Adam}
 	Adaptive Moment Estimation (Adam) \parencite{adam} builds from the previous adaptive optimizers by not only storing exponentially decaying averages of past squared gradients $v_{t,i}$, but by also keeping an exponentially decaying average of past gradients $m_{t,i}$ -- note the lack of the word ``squared''. 
@@ -267,31 +268,49 @@
 		m_{t, i} &= \beta_1 m_{t-1, i} + (1 - \beta_1)g_{t, i} \\
 		v_{t, i} &= \beta_2 v_{t-1, i} + (1 - \beta_2)g^2_{t, i}
 	\end{align}
-	where $\beta_1$, $\beta_2$ are hyperparameters the proportion of past information carried forward, with the default values typically working well in practice. Replacing $E[\bm{g}^2]$ with $\bm{v}$, $\mathcal{L}(\bm{\theta})$ with $\bm{m}$, and a small change to the square-root we end up with
+	where $\beta_1$, $\beta_2$ are hyper-parameters for the proportion of past information carried forward, with the default values typically working well in practice. Replacing $E[\bm{g}^2]$ with $\bm{v}$, $\mathcal{L}(\bm{\theta})$ with $\bm{m}$, and a small change to the square-root we end up with
 	\begin{align}
 		\theta_{t, i} = \theta_{t-1, i} - \frac{\gamma}{\sqrt{v_{t, i}} + \epsilon} m_{t, i}
 	\end{align}	
 	While not the most recent (I have omitted a few other adaptive optimizers), Adam is rapidly becoming the most frequently used optimizer for its consistent convergence and ease-of-use.
 	
 	\section{Dealing with Small Training Data Sets}
-	\TODO{Week 3}
-	Gathering a large data-set can be very costly or impractical, with neural-networks regularly requiring hundreds or thousands of examples to learn anything. Due to the difficulty in obtaining data, many attempts have been made to allow the training of neural networks with small data-sets.
+	Gathering a large data-set can be very costly or impractical, with neural-networks regularly requiring hundreds or thousands of examples to learn anything. Due to the difficulty in obtaining data, many approaches have been devised to allow the training of neural networks with small data-sets. \par
+	
 	\subsection{Overfitting}
-	\TODO{Week 3}
-	Likely the biggest problem with training on a small data-set is overfitting, which occurs when a model is trained on a small number of sample images. As mentioned earlier, it is desirable for a system to be shown enough images to determine which aspects of an image are characteristic of the class, and which are noise in the provided sample. Overfitting is when the model learns -- and becomes dependant on -- features specific to the training data provided, but that don't generalise well outside of that. See figure \ref{fig:fitting:1} for an example of a simple classification task.
+	Likely the biggest problem with training on a small data-set is overfitting, which occurs when a model is trained on a small number of sample images. As mentioned earlier, it is desirable for a system to be shown enough images to determine which aspects of an image are characteristic of the class, and which are noise in the provided sample. Overfitting is when the model learns -- and becomes dependant on -- features specific to the training data provided but that don't generalise well outside of that. See figure \ref{fig:fitting:1} for an example of a simple classification task. \par
 	\begin{figure}[!h]
 		\centering
-		\includegraphics[width=12cm]{fitting}
+		\includegraphics[width=14cm]{fitting}
 		\caption{Levels of fitting for a simple classification task}
 		\label{fig:fitting:1}
 	\end{figure}
+
 	\subsection{Transfer Learning}
 	\TODO{Week 3}
+	Transfer learning \TOCITE{} is a commonly employed technique of taking a neural network that has already been trained on a similar task, and adapting its weights to the new domain. For image classification, this is done by downloading a pre-trained model, replacing the final fully-connected Softmax output layer with a new output layer and training on the new data-set. The assumption that transfer learning hinges on is that the features learnt on a large data-set are general enough to \textit{transfer} tp a new, similar data-set. There are a number of well-known model architectures (section \TOCITE{}) available for download, typically being trained on the \textit{ImageNet} image database. \par
+	If the model is trained on a sufficiently large data-set it is true that the learnt features are usually general enough to receive good results after introducing relatively few samples from the new domain. This is not always the case \TOCITE{a paper linked to something about imagenet's features not being general}, especially when the new domain is significantly different from the old. As this approach requires the training of a model on a large source data-set, the user is either stuck with an existing model and no option to change, or must first train their own custom model on the large data-set first. This is a long, costly process which in many cases can be prohibitive. \par 
+
 	\subsection{Few-Shot Learning}
+	Few-shot learning is the ability to learn a new concept or idea from only a ``few'' examples. In the context of image-classification it is the ability to learn a new class from only a few example images. \par
 	\TODO{Week 3}
+	\begin{itemize}
+		\item Context of human learning
+		\item Smaller datasets required
+		\item rapid adaptation to new data
+		\item what challenges are there?
+		\item what's bad about it?
+		\item What's good about it?
+	\end{itemize}
+
 	\subsection{Meta Learning}
 	\TODO{Week 3}
-	\textit{Break into meta training, testing, episodes, etc.}
+	\begin{itemize}
+		\item What is meta learning
+		\item Relate to humans
+		\item What is a meta learner
+		\item Break into meta training, testing, episodes, etc.
+	\end{itemize}
 	
 	\section{Continuous Learning}
 	\TODO{Week 4}
@@ -305,7 +324,7 @@
 	
 	\chapter{Related Works}
 	\TODO{Week 5}
-	Approaches in meta learning with neural networks are generally groupd into three categories.
+	Approaches in meta learning with neural networks are generally grouped into three categories.
 	\subsection{Model Based}
 	\TODO{Week 5}
 	
