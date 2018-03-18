@@ -9,6 +9,7 @@
 \addbibresource{references.bib}
 \graphicspath{{images/}}
 
+
 %opening
 \title{Literature Survey - (Title pending)}
 \author{Ash}
@@ -47,7 +48,7 @@
 	
 	\chapter{Background}
 	Images are sources of highly-dimensional data for which humans have the incredible ability of understanding. Developing computer vision systems that perform to even a similar capacity to that of humans is an inherently difficult task. The gift of easily converting pixel values into meaningful concepts is a skill that computer vision experts have been attempting to transfer to computers for decades. \par
-	The ability to quickly gain an understanding of a new concept is a uniquely human trait. Consider that after seeing a giraffe only once, most humans would be able to easily identify it in a humorous police line-up  -- perhaps after the theft of a monkey's balloon --  but the best image recognition systems over the years would be dependant on seeing many examples of giraffes. It is quite standard to present hundreds of examples of each new concept in order to learn which parts of the image data are unimportant noise, and which parts are characteristic. \par
+	The ability to quickly gain an understanding of a new concept is a uniquely human trait. Consider that ter seeing a zebra only once, most humans would be able to easily identify it in a humorous police line-up  -- perhaps after the theft of a monkey's balloon --  but the best image recognition systems over the years would be dependant on seeing many examples of zebras. It is quite standard to present hundreds of examples of each new concept in order to learn which parts of the image data are unimportant noise, and which parts are characteristic. \par
 	Modern techniques have made great advances in the application of meta-learning techniques (learning to learn) to few-shot learning; the task of having a computer vision system learn to recognize images from only a few labelled examples. While the results have been very encouraging, the problem of catastrophic forgetting persists. The challenge of continuous learning is to teach new classes to a system without interfering with the previously learnt tasks. \par
 	Following on from the basic domain overview provided in chapter 1, we will now discuss neural-networks more thoroughly, and how advancements in the field have put us in a good position to tackle few-shot and continous learning. First we discuss the motivations for data-driven machine learning, the breadth of applicable tasks, and how these can be achieved. We will end with the problems regularly encountered with small data-sets and how modern architectures seek to resolve these. \par
 	
@@ -69,7 +70,7 @@
 
 	\section{Optimisation}
 	\subsection{Loss} \label{loss:1}
-	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how ``badly'' the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for localisation. \\
+	The process of optimising a machine learning system is to present it with a target of some sort -- either in the supervised or unsupervised setting -- and compute a numerical quantity called \textit{loss} or \textit{cost}. The loss is a scalar value which is representative of how ``badly'' the system has performed inference given the input image. It is the system's objective to minimise this value through some optimisation algorithm. The loss function is specifically chosen for the task at hand, \textit{cross-entropy} being a common choice for image classification tasks and \textit{mean-squared (L2) error}  for regression. \\
 	
 	\subsubsection{Symbols}
 	Before discussing loss functions, it's important to understand the inputs and outputs of a machine learning system when performing image classification. \par
@@ -287,30 +288,32 @@
 	\end{figure}
 
 	\subsection{Transfer Learning}
-	\TODO{Week 3}
-	Transfer learning \TOCITE{} is a commonly employed technique of taking a neural network that has already been trained on a similar task, and adapting its weights to the new domain. For image classification, this is done by downloading a pre-trained model, replacing the final fully-connected Softmax output layer with a new output layer and training on the new data-set. The assumption that transfer learning hinges on is that the features learnt on a large data-set are general enough to \textit{transfer} tp a new, similar data-set. There are a number of well-known model architectures (section \TOCITE{}) available for download, typically being trained on the \textit{ImageNet} image database. \par
-	If the model is trained on a sufficiently large data-set it is true that the learnt features are usually general enough to receive good results after introducing relatively few samples from the new domain. This is not always the case \TOCITE{a paper linked to something about imagenet's features not being general}, especially when the new domain is significantly different from the old. As this approach requires the training of a model on a large source data-set, the user is either stuck with an existing model and no option to change, or must first train their own custom model on the large data-set first. This is a long, costly process which in many cases can be prohibitive. \par 
+	Transfer learning is a commonly employed technique of taking a neural network that has already been trained on a similar task, and adapting its weights to the new domain. For image classification, this is done by downloading a pre-trained model, replacing the final fully-connected Softmax output layer with a new output layer and training on the new data-set. The assumption that transfer learning hinges on is that the features learnt on a large data-set are general enough to transfer to a new, similar data-set. There are a number of well-known model architectures (section \ref{modern-dl:1}) available for download, typically being trained on the \textit{ImageNet} image database. \par
+	If the model is trained on a sufficiently large data-set it is true that the learnt features are usually general enough to receive good results after introducing relatively few samples from the new domain; but is not as effective as possible, especially when the new domain is significantly different from the old. As this approach requires the training of a model on a large source data-set, the user is either stuck with an existing model and no option to change, or must first train their own custom model on the large data-set first. This is a long, costly process which can be prohibitive. \par 
 
 	\subsection{Few-Shot Learning}
-	Few-shot learning is the ability to learn a new concept or idea from only a ``few'' examples. In the context of image-classification it is the ability to learn a new class from only a few example images. \par
-	\TODO{Week 3}
+	Few-shot learning is the ability to learn a new concept or idea from only a ``few'' examples. In the context of image-classification it is the ability to learn a new class from only a few example images. It's desirable to have a system that can learn from a small data-set, because -- as mentioned earlier -- it can be a long, costly process to label data-sets. \par
+	The generalised description of few-shot learning for image classification is $N$-Way $K$-Shot learning, where $N$ is the number of classes between which the model is to make predictions; $K$ is the number of example images shown prior to having the model produce a prediction. Researchers tend to work on combinations of $N \in \{5, 10, 20\}$, $K \in \{1, 5\}$, regularly presented as one-shot and five-shot learning.
+	
+	\subsection{Meta Learning}s
+	Meta-learning can be described as ``learning how to learn'', and in the field of computer vision refers to having a system that is able to adapt rapidly to new classes or domains. The goal in standard machine learning is normally to have a system that can generalise between examples within a domain, leveraging information seen in the training data to gain a generalised understanding of the data distribution. Meta-learning contrasts this in that the goal is to leverage information seen in training data to gain understanding of the relationship between a data distribution and learning itself -- not tightly bound to the data distribution seen. This is a sensible objective, as it's a trick humans use to speed-up the learning of new information. After being shown a photo of the proverbial zebra, it is quicker and easier to learn it as a ``stripy horse'' rather than consider it an entirely new concept. \par
+	A ``meta-learner'' is a system that's responsible for this external-observation -- with the learner playing the usual role -- however there are many designs without a distinction between the two. Meta-learning for few-shot problems is generally categorised into three different approaches:
 	\begin{itemize}
-		\item Context of human learning
-		\item Smaller datasets required
-		\item rapid adaptation to new data
-		\item what challenges are there?
-		\item what's bad about it?
-		\item What's good about it?
+		\item \textbf{Optimization-based}: A model learns parameter update rules -- essentially replacing the role of an optimizer \TOCITE{} -- such that some good initial weights are modified rapidly and efficiently to perform for the current set of images.
+		\item \textbf{Model-based}: A specific model architecture designed to handle few-shot problems by utilising some kind of memory unit -- typically an RNN (section \ref{rnn}) or memory-network \TOCITE{}.
+		\item \textbf{Metric-based}: A model learns a representation of the given sample images and a method by which to compare query images with the recently-provided sample.
 	\end{itemize}
 
-	\subsection{Meta Learning}
-	\TODO{Week 3}
-	\begin{itemize}
-		\item What is meta learning
-		\item Relate to humans
-		\item What is a meta learner
-		\item Break into meta training, testing, episodes, etc.
-	\end{itemize}
+	\subsubsection{Training}
+	We will now consider the environment in which the aforementioned meta-learning approaches are trained and executed. \textit{Note that this section deals only with few-shot meta-learning for image-classification}. Having the system gain a meta-understanding of a task is almost exclusively approached in an episodic manner -- each episode consisting of conditioning a model on some examples of the task, having the model make a prediction, then updating the parameters to optimise this process. \par
+	As always in image-classification tasks, the data-set $\mathcal{D}$ is split into two class-disjoint sets $\mathcal{D}_{train}$ and $\mathcal{D}_{test}$, the latter a held-out set from which the model isn't allowed to learn. Additionally, as few-shot learning requires the exposure of examples before making a prediction, each of the sets is split on an episode basis into a \textit{support} set $\mathcal{D}_{S}$ and a \textit{query} set $\mathcal{D}_{Q}$. For the case of five-way one-shot classification, the support set will consist of one image from each of five randomly selected classes from either $\mathcal{D}_{train}$ or $\mathcal{D}_{test}$, with the query set consisting of one or more images drawn from the same data-set and belonging to one of the classes found in the support set (figure \ref{fig:episode:1}). \par
+	Due to the episode-based training, where the system sees a ``new'' set of classes in each, the meta-learner learns class-agnostic relationships between the support-set and the query-set. \par
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=14cm]{episode}
+		\caption{A single few-shot training episode}
+		\label{fig:episode:1}
+	\end{figure}
 	
 	\section{Continuous Learning}
 	\TODO{Week 4}
@@ -319,7 +322,7 @@
 	\TODO{Week 4}
 	\subsection{Convolutional Neural Networks}
 	\TODO{Week 4}
-	\subsection{Recurrent Neural Networks}
+	\subsection{Recurrent Neural Networks}\label{rnn}
 	\TODO{Week 4}
 	
 	\chapter{Related Works}
