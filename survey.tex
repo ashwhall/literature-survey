@@ -227,7 +227,7 @@
 		\label{fig:learning-rate:1}
 	\end{figure}
 	
-	\subsection{Adaptive Optimizers}
+	\subsection{Adaptive Optimizers} \label{optimizers:1}
 	If we consider a data-set whereby each mini-batch has some noise but that there is an optimal parameterisation for the entire set, we could visualise the loss landscape as shifting slightly for each mini-batch, but where there is a common direction towards which most samples will lead. Standard SGD will just apply a fixed step-size for all updates which leads the parameters to oscillate along the greatest descent angle, regardless of past updates. \par
 	
 	\subsubsection{SGD with Momentum}
@@ -299,9 +299,9 @@
 	Meta-learning can be described as ``learning how to learn'', and in the field of computer vision refers to having a system that is able to adapt rapidly to new classes or domains. The goal in standard machine learning is normally to have a system that can generalise between examples within a domain, leveraging information seen in the training data to gain a generalised understanding of the data distribution. Meta-learning contrasts this in that the goal is to leverage information seen in training data to gain understanding of the relationship between a data distribution and learning itself -- not tightly bound to the data distribution seen. This is a sensible objective, as it's a trick humans use to speed-up the learning of new information. After being shown a photo of the proverbial zebra, it is quicker and easier to learn it as a ``stripy horse'' rather than consider it an entirely new concept. \par
 	A ``meta-learner'' is a system that's responsible for this external-observation -- with the learner playing the usual role -- however there are many designs without a distinction between the two. Meta-learning for few-shot problems is generally categorised into three different approaches:
 	\begin{itemize}
-		\item \textbf{Optimization-based}: A model learns parameter update rules -- essentially replacing the role of an optimizer \TOCITE{} -- such that some good initial weights are modified rapidly and efficiently to perform for the current set of images.
-		\item \textbf{Model-based}: A specific model architecture designed to handle few-shot problems by utilising some kind of memory unit -- typically an RNN (section \ref{rnn}) or memory-network \TOCITE{}.
-		\item \textbf{Metric-based}: A model learns a representation of the given sample images and a method by which to compare query images with the recently-provided sample.
+		\item \textbf{Optimization-based}: A model learns parameter update rules -- essentially replacing the role of an optimizer (section \ref{optimizers:1}) -- such that some good initial weights are modified rapidly and efficiently to perform well with the current set of images.
+		\item \textbf{Model-based}: A specific model architecture designed to handle few-shot problems by utilising some kind of memory unit -- typically an RNN (section \ref{rnn:1}) or memory-network (section \ref{memory-nets:1}).
+		\item \textbf{Metric-based}: A model learns a representation of the given sample images and a method by which to compare query images with the recently-provided sample(s).
 	\end{itemize}
 
 	\subsubsection{Training}
@@ -311,7 +311,7 @@
 	\begin{figure}[!h]
 		\centering
 		\includegraphics[width=14cm]{episode}
-		\caption{A single few-shot training episode}
+		\caption{An N-way K-shot training episode}
 		\label{fig:episode:1}
 	\end{figure}
 	
@@ -322,7 +322,9 @@
 	\TODO{Week 4}
 	\subsection{Convolutional Neural Networks}
 	\TODO{Week 4}
-	\subsection{Recurrent Neural Networks}\label{rnn}
+	\subsection{Recurrent Neural Networks}\label{rnn:1}
+	\TODO{Week 4}
+	\subsection{Memory Networks}\label{memory-nets:1}
 	\TODO{Week 4}
 	
 	\chapter{Related Works}
