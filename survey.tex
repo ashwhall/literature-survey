@@ -320,28 +320,35 @@
 	\end{figure}
 	
 	\section{Continuous Learning}
+	Learning from a continuous stream of new information is a crucial milestone in the development of artificial intelligence -- especially artificial general intelligence -- as the normal offline-training procedure is impractical, and vastly different from biological neural networks. The neural networks found in the brain have the capacity for continuous learning -- the ability to learn new tasks/information without sacrificing previous skills/knowledge. ANNs don't have this capacity built-in, as the training typically occurs on a per-example (episode, image, batch, etc.) basis, with the purpose of optimising for that specific episode. It is inherent then, that a network will sacrifice its existing parameter state to perform better at the task presented. \par
+	The forgetting of older knowledge when learning new information is known as \textit{catastrophic forgetting} or \textit{catastrophic interference}. It purportedly occurs when there is representational overlap inside a network between old and new information. The easiest way to gain an understanding of the new domain is to reuse that knowledge, sacrificing performance on the previous domain. This leads to an abrupt decrease in performance on the old domain, and eventually a total loss of learned knowledge. \par
+	There have been many attempts at mitigating catastrophic forgetting using as number of methods (section \ref{related-cont-learning:1}) with varying degrees of success; many drawing inspiration from the brain. \par
+	While this isn't a neuroscience writing (I'm certainly not qualified for that!), I will briefly mention some of the known neurophysiological functions that allow the brain to adapt quickly to new information while retaining learnt information from previous tasks. \par
+	\begin{itemize}
+		\item\textbf{Neurosynaptic plasticity} - The brain is particularly plastic during early development, allowing for sense-driven changes to occur on a large scale. Plasticity decreases with increasing age, making the brain more stable
+	\end{itemize}
 	\TODO{Week 4}
-	\textit{Catastrophic forgetting}
+
 	\section{Modern Deep Learning Architectures} \label{modern-dl:1}
 	\TODO{Week 4}
-	\subsection{Convolutional Neural Networks}
+	\subsection{Convolutional Neural Networks} \label{cnn:1}
 	\TODO{Week 4}
 	\subsection{Recurrent Neural Networks}\label{rnn:1}
 	\TODO{Week 4}
 	\subsection{Memory Networks}\label{memory-nets:1}
 	\TODO{Week 4}
 	
-	\chapter{Related Works}
+	\chapter{Related Works} \label{related:1}
 	\TODO{Week 5}
 	Approaches in meta learning with neural networks are generally grouped into three categories.
-	\subsection{Model Based}
+	\subsection{Model Based} \label{related-meta-modl:1}
 	\TODO{Week 5}
 	
-	\subsection{Metric Based}
+	\subsection{Metric Based} \label{related-meta-metr:1}
 	\TODO{Week 6}
-	\subsection{Optimization Based}
+	\subsection{Optimization Based} \label{related-meta-opt:1}
 	\TODO{Week 7}
-	\section{Continuous Learning}
+	\section{Continuous Learning} \label{related-cont-learning:1}
 	\TODO{Week 8}
 	\chapter{Proposal}
 	\TODO{Week 9}
