@@ -344,13 +344,13 @@
 		\label{fig:mnist:1}
 	\end{figure}
 	Each input pixel would then be mapped by a distinct neuron weight in the first layer, which is problematic. Following the "importance weighting" interpretation introduced in section \ref{fully-connected:1}, the network must consider each input pixel individually with regards to its importance in the classification prediction. The same input image shifted by one pixel in any direction will likely produce very different results. This problem is inherent to fully-connected layers, and is best addressed by \textit{convolutional layers}. \par
-	We would instead prefer to see the image in a more global context, where we can learn about the presence or absence of features throughout the image. It's easier to describe the number eight as ``one circular thing on top of another circular thing'' than by raw pixel intensities. This was the work of hand-engineered \textit{kernels} for a long time prior to the resurgence of neural networks -- see figure \ref{fig:hand-eng-kernels:1} for examples of hand-engineered kernels and their effects. As kernels are a fundamental concept for convolutional neural networks, we'll now go into some detail. \par
+	We would instead prefer to see the image in a more global context, where we can learn about the presence or absence of features throughout the image. It's easier to describe the number eight as ``one circular thing on top of another circular thing'' than by raw pixel intensities. This was the work of hand-engineered \textit{kernels} for a long time prior to the resurgence of neural networks -- see figure \ref{fig:hand-eng-kernels:1} for examples of hand-engineered edge-detection kernels and their results. As kernels are a fundamental concept for convolutional neural networks, we'll now go into some detail. \par
 	\begin{figure}[!h]
 		\centering
 		\includegraphics[width=8cm]{handengkernels}
-		\caption{Hand-engineered image kernels}
+		\caption{Hand-engineered edge-detection kernels}
 		\label{fig:hand-eng-kernels:1}
-		\textit{Source: https://en.wikipedia.org/wiki/Kernel\_(image\_processing)}
+		\textit{Image adapted from https://en.wikipedia.org/wiki/Kernel\_(image\_processing)}
 	\end{figure}
 	A kernel -- also known as a filter -- is a (typically square) matrix that is convolved over an input image to produce another image which contains some locally-aggregated information. It can be thought of as a window that slides over the image, seeing it in small sections. At each position the values in the input are multiplied by the corresponding point in the kernel, and the output value is their sum. Figure \TOCITE{} shows a 2x2 kernel applied to a the pixel values of a very small input image, and the resultant values. Their applicability to neural networks is very convenient, as all we need to do is replace the hand-engineered values with learnt weights and we have the makings of a convolutional layer. As discussed in section \ref{hand-eng:1}, hand-engineered features are usually of limited capacity, with data-driven features being more powerful. \par
 	The outputs of a single kernel 3x3 convolutional layer are an image-like matrix which contains locally-aggregated information from the input image. As the kernel is 3x3 pixels, the \textit{effective receptive field} size at this point is 3x3 pixels. That is, the features in the outputs correspond to a region of three pixels in each direction. If the outputs of this layer are fed into another layer of the same size, the effective receptive field size at this extra layer will be 5x5 pixels. The trend of an increasing receptive field continues for more layers, which has great consequences -- the further into a network of convolutional layers, the more global the information as the deeper filters can see more of the input image features. \par
@@ -358,17 +358,23 @@
 	With this knowledge that the depth of a neural network corresponds to its global understanding and its ability to learn complex features, it makes sense that modern convolutional neural networks are quite deep -- sometimes into the hundreds. For the task of image classification, the missing link in the chain is how we produce the probability over the classes -- take the outputs of the final convolutional layer, ``unwrap'' it as we did for the input image, and pass it through a fully-connected layer to produce the right number of output values. \par
 	
 	\subsection{Recurrent Neural Networks}\label{rnn:1}
-	\TODO{Week 4}
 	Nothing covered so far has had the capacity to work on temporal data; Recurrent Neural Networks (RNNs) address this. We have only seen two sets of values relating to a neural network -- weights, which are the network's ``intelligence''; and activations, which are the neurons' responses to the given inputs. Only the weights persist between runs, but don't have the capacity to retain information about individual samples (if they do, they've overfit!). \par
 	For a neural network with a single hidden-layer, the activations at time $t$ are $h = \sigma(\bm{W}\bm{x}_t)$ for some input $\bm{x}_t$, weights $\bm{W}$, and activation function $\sigma$. RNNs work by recursively passing their hidden state through time-steps, weighted by learnt values. This can be expressed mathematically as 
 	\begin{align}
 		\bm{h}_{t} = \sigma(\bm{W}\bm{x}_t + \bm{U}\bm{h}_{t-1})
 	\end{align}
-	where $\bm{U}$ is a learnt matrix which filters and scales the hidden state values passed between time-steps. The recurrent design of this relationship means that not only will time-step $t$ contain information from time-step $t-1$, but $t-2, t-3, ...$ Figure \TOCITE{} shows a very simple RNN. Note that we haven't discussed how to trigger an RNN to stop -- this is purposefully omitted as it's outside the scope of this writing. \par
+	where $\bm{U}$ is a learnt matrix which filters and scales the hidden state values passed between time-steps. The recurrent design of this relationship means that not only will time-step $t$ contain information from time-step $t-1$, but $t-2, t-3, ...$ Figure \ref{fig:rnn:1} shows a very simple RNN. Note that we haven't discussed how to trigger an RNN to stop -- this is purposefully omitted as it's outside the scope of this writing. \par
 	By their design, RNNs are able to consider all prior information when making a prediction. This makes them a perfect candidate for time-series or arbitrary length sequence data such as text, weather predictions, speech-recognition etc.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=12cm]{rnn}
+		\caption{A simple Recurrent Neural Network}
+		\label{fig:rnn:1}
+		This network maps inputs $x_i$ to outputs $y_i$ for $i \in \mathbb{N}^{[1, t]}$. Red arrows indicate error-backpropagation.
+	\end{figure}
 	
 	\subsubsection{Exploding/Vanishing Gradients}
-	When training an RNN, you typically need to see the entirety (or at least a large portion) of its outputs to compute the loss -- e.g. we can't assess how well it constructed a sentence until we can see the whole sentence. The training error is back-propagated through time from the last of the output sequence to the first of the input sequence (see the red arrows in figure \TOCITE{}). \par
+	When training an RNN, you typically need to see the entirety (or at least a large portion) of its outputs to compute the loss -- e.g. we can't assess how well it constructed a sentence until we can see the whole sentence. The training error is back-propagated through time from the last of the output sequence to the first of the input sequence (see the red arrows in figure \ref{fig:rnn:1}). \textit{The missing red arrow for input $x_t$ relates to the fact that we've omitted the ``stop'' trigger mentioned in section \ref{rnn:1}.} \par
 	As the gradients must be passed a long way, it is easy to imagine that we may end up with compounding errors, resulting in numerical instability. Gradients are particularly susceptible to this -- with the relationship between layers being multiplicative, any consecutive operations on values less than 1 approach zero, and any consecutive operations on values greater than 1 approach $\infty$. These problems are known respectively as the vanishing gradient problem, and the exploding gradient problem. Figure \ref{fig:multi-sigmoids:1} demonstrates this problem: with the sigmoid function being applied repeatedly we see that the output values ``flatline'' with the gradient rapidly approaching zero. As the gradients are used to propagate training error, no gradient means no learning.
 	\begin{figure}[h]
 		\centering
@@ -381,20 +387,24 @@
 	LSTMS introduce a memory structure referred to as a \textit{gated cell}, which is similar to Random Access Memory on a typical computer -- information can freely be written, read, and erased out of order. However, while RAM supports digital reading/writing/erasing, LSTMs allow for \emph{analog} memory access -- data is changed and read to varying degrees in a differentiable process. There are a handful of variants on the LSTM which are growing in popularity, but as the internal workings of those, and LSTMs are too complex to discuss in this writing, swe won't explore them any further. \par
 	
 	\subsection{Memory Networks}\label{memory-nets:1}
-	As regular feed-forward don't have any memory units but RNNs do, they have been used for tasks where memory is required, but not for necessarily sequential data. Memory networks address this by augmenting regular neural networks to have an addressable external memory unit. They operate in a very similar manner to LSTMs, in that they have the equivalent to gates managing the read/write/erasure of elements in the memory unit. We will briefly touch on how a memory network functions as it has great relevance to few-shot learning, where memory of past examples is helpful, but doesn't have a strict temporal relationship. \par
-	A high-level view of memory networks (as shown in figure \TOCITE{}) is as follows:
+	As regular feed-forward don't have any memory units but RNNs do, they have been used for tasks where memory is required, but not for necessarily sequential data. Memory networks address this by augmenting regular neural networks to have an addressable external memory unit. They operate in a very similar manner to LSTMs, in that they have the equivalent to gates managing the read/write/erasure of elements in the memory unit. We will briefly touch on how a memory network functions as it has great relevance to few-shot learning, where memory of past examples is helpful, but doesn't have a strict temporal relationship. A high-level view of memory networks (as shown in figure \ref{fig:memory-nets:1}) is as follows:
 	\begin{itemize}
 		\item \textbf{Memory} - An indexed array of vectors representing the currently-stored information.
-		\item \textbf{Input map} - Transforms inputs to a unified internal feature representation.
-		\item \textbf{Generalisation component} - Updates old memories given new input. Referred to as ``generalisation'' as this is responsible for compressing and generalising old memories into new representations.
-		\item \textbf{Output map} - Produces an output given the new input and the state of memory.
-		\item \textbf{Response component} - Converts the output into the external representation, such as text, prediction probability distribution, etc. 		
+		\item \textbf{I}nput map - Transforms inputs to a unified internal feature representation.
+		\item \textbf{G}eneralisation component - Updates old memories given new input. Referred to as ``generalsisation'' as this is responsible for compressing and generalising old memories into new representations.
+		\item \textbf{O}utput map - Produces an output given the new input and the state of memory.
+		\item \textbf{R}esponse component - Converts the output into the external representation,s such as text, prediction probability distribution, etc. 		
 	\end{itemize}
 	Memory networks have had significant success, and offer a practical alternative to RNNs when working with any variable-length data -- time-series based or not.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=14cm]{memory-nets}
+		\caption{High-level overview of a memory network}
+		\label{fig:memory-nets:1}
+	\end{figure}
 	
 	\chapter{Related Works} \label{related:1}
 	\TODO{Week 5}
-	Approaches in meta learning with neural networks are generally grouped into three categories.
 	\subsection{Model Based} \label{related-meta-modl:1}
 	\TODO{Week 5}
 	
