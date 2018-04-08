@@ -46,7 +46,7 @@
 	\textbf{Brief description of experimental setup} \\
 	
 	
-	\chapter{Background}
+	\chapter{Background} \label{background:1}
 	Images are sources of highly-dimensional data for which humans have the incredible ability of understanding. Developing computer vision systems that perform to even a similar capacity to that of humans is an inherently difficult task. The gift of easily converting pixel values into meaningful concepts is a skill that computer vision experts have been attempting to transfer to computers for decades. \par
 	The ability to quickly gain an understanding of a new concept is a uniquely human trait. Consider that ter seeing a zebra only once, most humans would be able to easily identify it in a humorous police line-up  -- perhaps after the theft of a monkey's balloon --  but the best image recognition systems over the years would be dependant on seeing many examples of zebras. It is quite standard to present hundreds of examples of each new concept in order to learn which parts of the image data are unimportant noise, and which parts are characteristic. \par
 	Modern techniques have made great advances in the application of meta-learning techniques (learning to learn) to few-shot learning; the task of having a computer vision system learn to recognize images from only a few labelled examples. While the results have been very encouraging, the problem of catastrophic forgetting persists. The challenge of continuous learning is to teach new classes to a system without interfering with the previously learnt tasks. \par
@@ -331,6 +331,9 @@
 		\item\textbf{Complementary learning systems} - As the brain's task is to both learn and memorise, it consists of two primary components relating to memory. The hippocampus rapidly encodes new memories into sparse representations for quick short-term recall with minimal interference, whereas the neocortex slowly encodes older memories into overlapping representations for long-term storage.
 	\end{itemize}
 	Researchers often return to the brain for inspiration due to its incredible capacity to deal with long-term memory without exhibiting catastrophic interference. However, the brain is far from fully understood so proposed solutions in machine learning rapidly reach a limit of practicality. \par
+	
+	\subsection{Class-Incremental Learning}
+	A specific set-up for the problem of continuous learning is \emph{class-incremental learning}, where a system is introduced new classes of information in a strictly incremental manner -- class $i$ is only shown to the system after it has seen class $i-1$ in its entirety. In some variations, classes may be introduced in sizes greater than one, adding five or more classes for each increment. Class-incremental learning is a good test of a system's capacity for continuous learning, as it only has the one opportunity to learn each class distribution but is to retain that information for ``life''. \par
 
 	\section{Modern Deep Learning Architectures} \label{modern-dl:1}
 	The only ANNs we've covered as of this point are \textit{fully-connected neural networks} (section \ref{fully-connected:1}) which have a very limited capacity in terms of practical use-cases, as we'll explore in this section. \par
@@ -393,7 +396,7 @@
 	LSTMS introduce a memory structure referred to as a \textit{gated memory cell}, which is similar to Random Access Memory on a typical computer -- information can freely be written, read, and erased out of order. However, while RAM supports digital reading/writing/erasing, LSTMs allow for \emph{analog} memory access -- data is changed and read to varying degrees in a differentiable process. There are a handful of variants on the LSTM which are growing in popularity, but as the internal workings of those, and LSTMs are too complex to discuss in this writing, swe won't explore them any further. \par
 	
 	\subsection{Memory Networks}\label{memory-nets:1}
-	As regular feed-forward don't have any memory units but RNNs do, they have been used for tasks where memory is required, but not for necessarily sequential data. Memory networks address this by augmenting regular neural networks to have an addressable external memory unit. They operate in different manner to LSTMs, but they share the same idea gates managing the read/write/erasure of elements in their respective memory unit. We will briefly touch on how a memory network functions as it has great relevance to few-shot learning, where memory of past examples is helpful, but doesn't have a strict temporal relationship. A high-level view of memory networks (as shown in figure \ref{fig:memory-nets:1}) is as follows:
+	Although RNNs are designed for temporal data, they have been the architecture of choice for quite some time, as standard feed-forward networks don't have memory units. Memory networks address this by augmenting regular neural networks to have an addressable external memory unit. They operate in different manner to LSTMs, but they share the same idea gates managing the read/write/erasure of elements in their respective memory unit. We will briefly touch on how a memory network functions as it has great relevance to few-shot learning, where memory of past examples is helpful, but doesn't have a strict temporal relationship. A high-level view of memory networks (figure \ref{fig:memory-nets:1}) is as follows:
 	\begin{itemize}
 		\item \textbf{Memory} - An indexed array of vectors representing the currently-stored information.
 		\item \textbf{I}nput map - Transforms inputs to a unified internal feature representation.
@@ -408,12 +411,24 @@
 		\caption{High-level overview of a memory network}
 		\label{fig:memory-nets:1}
 	\end{figure}
+
+	\section{Summary}
+	In this chapter I introduced the concept of hand-engineered features, and how neural network architectures optimise this process so human-imposed knowledge doesn't limit the capacity of a system's performance. I then explained the functionality and applications of modern deep-learning architectures including CNNs; RNNs; and Memory Networks, and the problem domains within which I will be working. In the following chapter I will discuss related works which are in the fields of meta-learning and continuous learning, and have served as a point of reference for my proposal. \par
 	
 	\chapter{Related Works} \label{related:1}
-	\TODO{Week 5}
+	\TODO{Week 8}
+	In this section I will introduce and summarise some works which are related to my problem domain, and will discuss their practicality and ... \TODO{Will complete this intro when I've finished the related works section}
 	\section{Meta-Learning}
+	\TODO{Week 7 - will complete this intro when I've finished the meta-learning section}
 	\subsection{Model Based} \label{related-meta-modl:1}
 	\TODO{Week 5}
+	\subsubsection{Meta-Learning with Temporal Convolutions}
+	LONG
+	\subsubsection{One-shot Learning with Memory-Augmented Neural Networks}
+	\subsubsection{A Simple Neural Attentive Meta-Learner}
+	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
+	\subsubsection{Meta Networks}
+	LONG
 	
 	\subsection{Metric Based} \label{related-meta-metr:1}
 	\TODO{Week 6}
