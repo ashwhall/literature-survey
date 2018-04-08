@@ -327,7 +327,7 @@
 	While this literature survey is not focused on neuroscience, I will briefly mention some of the known neurophysiological functions that allow the biological neural networks to adapt quickly to new information while retaining learnt information from previous tasks. \par
 	\begin{itemize}
 		\item\textbf{Neurosynaptic plasticity} - The brain is particularly plastic during early development, allowing for sense-driven changes to occur on a large scale. Plasticity decreases with increasing age to provide stability, but a degree of plasticity is retained for small-scale adaptation.
-		\item\textbf{Hebbian plasticity}\parencite{hebbian} - ``Neurons wire together if they fire together''\parencite{wirefire}. An observed pattern in the brain where synaptic efficacy (neuron firing strength) increases through persistent stimulation. Simply put, frequently used neural pathways gain strength and reduce plasticity.
+		\item\textbf{Hebbian plasticity}\parencite{hebbian}\label{hebbian:1} - ``Neurons wire together if they fire together''\parencite{wirefire}. An observed pattern in the brain where synaptic efficacy (neuron firing strength) increases through persistent stimulation. Simply put, frequently used neural pathways gain strength and reduce plasticity.
 		\item\textbf{Complementary learning systems} - As the brain's task is to both learn and memorise, it consists of two primary components relating to memory. The hippocampus rapidly encodes new memories into sparse representations for quick short-term recall with minimal interference, whereas the neocortex slowly encodes older memories into overlapping representations for long-term storage.
 	\end{itemize}
 	Researchers often return to the brain for inspiration due to its incredible capacity to deal with long-term memory without exhibiting catastrophic interference. However, the brain is far from fully understood so proposed solutions in machine learning rapidly reach a limit of practicality. \par
@@ -418,18 +418,47 @@
 	\chapter{Related Works} \label{related:1}
 	\TODO{Week 8}
 	In this section I will introduce and summarise some works which are related to my problem domain, and will discuss their practicality and ... \TODO{Will complete this intro when I've finished the related works section}
-	\section{Meta-Learning}
+	\section{Few-Shot Meta-Learning}
 	\TODO{Week 7 - will complete this intro when I've finished the meta-learning section}
 	\subsection{Model Based} \label{related-meta-modl:1}
-	\TODO{Week 5}
-	\subsubsection{Meta-Learning with Temporal Convolutions}
-	LONG
-	\subsubsection{One-shot Learning with Memory-Augmented Neural Networks}
-	\subsubsection{A Simple Neural Attentive Meta-Learner}
-	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
-	\subsubsection{Meta Networks}
-	LONG
+	Model based meta-learning techniques are those that base the solution around a specific model design. These are typically implemented with some sort of memory unit -- such as an LSTM or memory network -- though isn't a decisive factor. Basing a solution a custom model gives more freedom to design a task-specific system, but generally suffers as there is less freedom to change the architecture. \par
+	s
+	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity \normalfont{\parencite{ltlwbohb}}}
+	This technique uses the theory of Hebbian plasticity (section \ref{hebbian:1}) to allow for connections between highly active pairs of neurons to increase in efficacy throughout their lifetime. This is achieved by defining a time-dependant quantity they call the ``Hebbian trace'', which acts as a moving-average of pair-wise synaptic activities. Using back-propagation, they train a plasticity parameter which determines how much the Hebbian trace influences the pair's connection; once trained, this plasticity parameter is fixed. The Hebbian trace is computed during all forward-passes of the network throughout its lifetime, weighting the activations of neuron-pairs proportionate to their learned plasticity. \par
+	Although the technique described is primarily for continuous learning, they also apply the problem to a one-shot task. The task described is a toy-problem, but shows that through utilisation of the implemented Hebbian plasticity, the model is capable of quickly adapting its learning capacity to deal with the few-shot problem domain. The Hebbian trace could very easily be added into any ANN architecture as an additional learned parameter, but its application to few-shot learning tasks is very limited. \par
 	
+	\subsubsection{One-shot Learning with Memory-Augmented Neural Networks \normalfont{\parencite{oslwmann}}}
+	One-shot learning is approached by using a memory-augmented neural network (section \ref{memory-nets:1}). That memory networks can rapidly encode, decode and selectively forget items from their external memory unit makes them an ideal choice for few-shot learning. The typical method for accessing memory locations is to use simple ``attention'', which allows the model to learn its own strategy. The authors of this paper recognise that this may result in an attention mechanism that is better purposed to sequential data, rather than the strictly un-ordered task of few-shot learning. They propose a novel memory access module called the Least Recently Used Access (LRUA) module, which is a content-based memory writer that writes memories to either the least-used or most-recently used memory locations, depending on the network's context. \par
+	This new access method garnered strong results, as it allowed the network to learn the ability to replace unnecessary information as required. They show that the technique can be applied successfully to classification and regression problems, but identified that the memory unit must be cleared between tasks, lest proactive interference may occur. It must also be acknowledged that although the LRUA technique achieves increased performance, it is still a hand-engineered solution which is not applicable to all problem domains. \par
+	
+	\subsubsection{Meta-Learning with Temporal Convolutions \normalfont{\parencite{mlwtc}}}
+	At its core this work devises a method which works in a purely causal manner -- the model is only influenced by previous time-steps. This is a clearly logical set-up for few-shot learning, as the task is to make decisions (specifically -- predict the class of an image) based on a small number of previously-unseen inputs. The term ``temporal convolutions'' refers to an adaptation of standard convolutions -- which convolve over coordinates -- such that the convolutions occur through time. The architecture is a deep stack of dilated temporal-convolutional layers -- where dilation basically refers to the ``overlooking'' of previous information, so as to have a larger temporal ``view'' without requiring a larger number of parameters (see the bold black diagonal lines in figure \ref{fig:temporal:1}). \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=11cm]{temporal}
+		\caption{Temporal Convolutional Meta-Learner (TCML) system architecture}
+		\label{fig:temporal:1}
+		Support image/label pairs $(i_0,y_0), (i_1,y_1), ...$ are fed in one per time-step, then the query image without its label. Image features are extracted for each input, then the TCML outputs the label for the support image it associates with the query image.
+	\end{figure}
+	This approach works across many problem types including few-shot and reinforcement learning, but we will only consider few-shot learning. The inputs to the network are shuffled support images with their associated labels, and a final query image with an ``empty'' place-holder label. The model thereby learns an internal relationship between the support images and the query image, effectively computing finding the most similar. As the network uses dilated temporal-convolutions, the number $N_{support}$ of support images -- and therefore the number of classes between which the network can classify -- can be quite large, with the model needing a number of layers of $log(N_{support})$, as dilated convolutions give an exponentially-increasing temporal view.  \par
+	The results obtained by this technique are encouraging, achieving state-of-the-art results across the board. As with all approaches however, there are drawbacks. Other few-shot learning techniques (optimizer based - section \ref{related-meta-opt:1}, some metric based - section \ref{related-meta-metr:1}) operate in such a way that after presenting the support examples, results in a model which can classify between the presented classes. TCML (and most few-shot meta-learners) don't do this -- you must present support examples for each of the classes for \emph{every} classification produced by the model. This means that you need to find ``good'' class-examples, and that you must perform computation on them for every query. To have a system that is viable for continuous learning -- which this approach doesn't address -- it would have the means to embed this knowledge within itself and not become progressively more computationally expensive so rapidly. \par
+	
+	\subsubsection{Meta Networks \normalfont{\parencite{mn}}}
+	The so-called \emph{MetaNet} is somewhat an amalgamation of meta-learning techniques including memory networks and fast weight generation -- weights that are rapidly changed or generated dependent on network inputs. There is also a clear separation between the meta-learner and the base-learner, a line that is regularly indistinct with other techniques. \par
+	The base-learner is parametrised by slow weights updated via a typical learning algorithm during training, and example-level fast weights generated by the meta-learner for each input (see figure \ref{fig:metanet:1}a). The base learner computes the loss for its predictions for the support set, and gives the gradients to the meta-learner. The meta-learner takes this meta information and produces a set of fast weights for the base learner when training, as well as producing its own fast weights, as a function of the information stored in memory and the meta-information. The combination of slow weights with fast weights is shown in figure \ref{fig:metanet:1}b, where its shown that the weights work in parallel, with element-wise addition used to merge the activations. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=16cm]{metanet1}
+		\caption{Meta Networks system architecture}
+		\label{fig:metanet:1}
+	\end{figure}
+	MetaNet achieves competitive results for common one-shot learning tasks, and even demonstrates positive reverse transfer as shown in figure \ref{fig:metanet:2}. This is ideal performance for a multi-task learner as it means that the meta-learner is good at persisting task-agnostic information, while incorporating newly found information. That being said, the model architecture is very complicated, with many co-dependencies between the base-learner and the meta-learner. This makes it an undesirable choice for practical applications due to being overly complex. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=8cm]{metanet2}
+		\caption{Meta Networks demonstration of positive reverse transfer}
+		\label{fig:metanet:2}
+	\end{figure}
 	\subsection{Metric Based} \label{related-meta-metr:1}
 	\TODO{Week 6}
 	\subsection{Optimization Based} \label{related-meta-opt:1}
