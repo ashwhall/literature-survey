@@ -16,10 +16,10 @@
 
 \newcommand{\TODO}[1]{\sethlcolor{pink}\hl{\\(#1)\\}}
 \newcommand{\FEEDBACK}[1]{\sethlcolor{green}\hl{\\ Feedback: \\#1\\}}
-\newcommand{\TOCITE}[1]{\textsuperscript{\underline{citation needed #1}}}
+\newcommand{\TOCITE}[2][citation needed]{\textsuperscript{\underline{#1}}}
 
 \begin{document}
-	
+
 	\maketitle
 	\thispagestyle{empty}
 	\newpage
@@ -453,15 +453,58 @@
 		\caption{Meta Networks system architecture}
 		\label{fig:metanet:1}
 	\end{figure}
-	MetaNet achieves competitive results for common one-shot learning tasks, and even demonstrates positive reverse transfer as shown in figure \ref{fig:metanet:2}. This is ideal performance for a multi-task learner as it means that the meta-learner is good at persisting task-agnostic information, while incorporating newly found information. That being said, the model architecture is very complicated, with many co-dependencies between the base-learner and the meta-learner. This makes it an undesirable choice for practical applications due to being overly complex. \par
+	MetaNet achieves competitive results for common one-shot learning tasks, and even demonstrates positive reverse transfer as shown in figure \ref{fig:metanet:2}. This is ideal performance for a multi-task learner as it means that the meta-learner is good at persisting task-agnostic information, while incorporating newly found information. That being said, the model architecture is very complicated, with many co-dependencies between the base-learner and the meta-learner. This makes it an undesirable choice for practical applications due to being overly complex.  \newline \newline
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=8cm]{metanet2}
 		\caption{Omniglot test accuracy change obtained while training Meta Networks on MNIST}
 		\label{fig:metanet:2}
 	\end{figure}
+	Each of the works discussed in this section have had strong results for few-shot tasks, however none have much applicability to continuous learning, and many require complex implementations. An ideal system would allow for the adding of classes throughout time, without being restrictively difficult to implement. \par
+	
 	\subsection{Metric Based} \label{related-meta-metr:1}
 	\TODO{Week 6}
+	Metric based meta-learning solutions deal with embedding query and support images into a space and computing the similarity, or distance between them. These approaches are typically very simple and accurate, but suffer from the problem that the number of embeddings and comparisons generally grows proportionate to the number of classes. This can be partially avoided by pre-embedding support images, but this means that models cannot be further trained without the embeddings rapidly degrading, making them poor candidates for continuous learning. \par
+	
+	\subsubsection{Siamese Neural Networks for One-Shot Image Recognition}
+	The work by Koch et. al. \parencite{siamese} uses \textit{siamese neural networks} to learn an image similarity-measure. Siamese networks are a class of architectures that are primarily for the purpose of computing the similarity between pairs of images. Two images are fed separately into a network which embeds them into a vector of length 4096 (see figure \ref{fig:siamese:2}). The embeddings then have the absolute value of their difference computed, and are passed through a final fully-connected layer to produce a scalar similarity value. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=9cm]{siamese}
+		\caption{Overview of a siamese neural network}
+		A network embeds support image $x_s$ and query image $x_q$ into $e_s$ and $e_q$, respectively. The absolute value of the difference of the embeddings is computed, then a fully connected layer outputs a single similarity value.
+		\label{fig:siamese:2}
+	\end{figure}
+	The above-described technique is a \emph{mostly} data-driven approach for image similarity (we'll see a fully data-driven approach when discussing \textit{Relation Network} below) however this is an incomplete description of a one-shot image classification system. The novel aspect of this work is that while training, the system's task is solely image similarity, with targets of 1 when the image pair are from the same class, and 0 otherwise. When performing classification, this similarity operation is performed for with pairs consisting of the query image and each of the support set. The prediction is simply the class corresponding to the support image with which it had the highest similarity score. \par
+	This approach is very simple, achieves good results, and is well studied -- with siamese networks having been in use since as early as 1994. However the amount of forward-passes increases proportionate to the number of classes, which makes it a poor candidate for continuous learning. The approach also only considers one-shot learning, which prevents the system from learning from more than one image. Although not discussed in the research paper, there are some simple modifications that could somewhat resolve these problems. The embedding function is fixed once trained, meaning that embeddings could be stored instead of images to serve as examples of classes. This minimises the increase in computation as new classes are added and makes it a better option for continuous learning. As for the limitation to one-shot learning, the system could easily be extended to allow for multiple examples per class, with the correct class being the one that receives the most "votes" across all examples. \par
+	Even with the aforementioned modifications mitigating some issues in applying this to continuous learning, some problems still persist. Although adding new classes is as simple as acquiring an image, there is no guarantee that the new classes come from the same data-distribution as what the model was trained on. The embedding network could then perform poorly and therefore damage the model's ability to accurately compute the similarity for these new classes. \par
+	
+	\subsubsection{Matching Networks for One Shot Learning}
+	The work by Vinyals et. al. \parencite{matching} focuses on a problem encountered with previous works -- simple embedding functions work on a per-image basis, not taking into account the similarity between support classes. This is addressed by creating \emph{full context embeddings}, using an LSTM to compute $emd(x_i,S)$ for $x_i \in S$ where $S$ is the support set of images. These embeddings are then stored in external memory as in a memory network. Image queries are performed by using an LSTM as an attention mechanism over the stored embeddings and taking the class that received the greatest attention. Having full context embeddings allows the network to generalise to previously-unseen data distributions for new classes. \par
+	This solution is similar to model based meta-learning, but is more likely considered a metric based approach as the class prediction is made as a function of similarity to embedded support images. The one-shot results yielded by this technique are good, but in considering an extension to continuous learning we encounter obstacles. The size of memory needs to scale proportionate to the number of classes, and the LSTM embedding/attention mechanism is rather complex. \par
+
+	\subsubsection{Prototypical Networks for Few-Shot Learning}
+	The work by Snell et. al. \parencite{prototypical} proposes a simplified approach to metric based few-shot learning, while simultaneously considering the preservation of class examples without storing the actual images. Simply put, the concept is to compute a \emph{prototypical} embedding for each of the classes, and use this to perform queries. \par
+	The learnt embedding function is used to embed support examples, and the mean of the support embeddings is considered the ``prototype'' for that class. Query images are embedded in the same way, and the nearest prototype is used as the class prediction. Despite being a very simple approach, this achieved better results than aforementioned works and is quite performant, owing to the fact that a single embedding vector can be used to represent an entire class and doesn't need to be fed through the network again. This seems to be a good contender when considering the continuous learning domain, but a problem encountered is that the dimensionality of the embeddings may quickly become too small, resulting in embedding collisions; retraining of the network would be required to increase the capacity of the embeddings. \par
+
+	\subsubsection{Learning to Compare: Relation Network for Few-Shot Learning}
+	Sung et. al. \parencite{relationnet} identify that a weakness in metric based few-shot learning strategies lies in the fact that the distance/similarity calculation is pre-determined -- hand-engineered. They propose a solution with an entirely data-driven similarity module, and that allows for the classification between an arbitrary number of classes. \par
+	The network consists of two simple modules (see figure \ref{fig:relation-net:1}
+	\begin{itemize}
+		\item\textbf{Embedding module}: A sequence of convolutional layers that produces a 3-dimensional feature map per image.
+		\item\textbf{Relation module}: Given a pair of feature maps -- one each for a support image and query image -- concatenates them and applies a sequence of convolutional layers. Two fully-connected layers at the end of this module transform the output to be a single value: a similarity score.
+	\end{itemize}
+	The model's predicted class is the class of the support image with which the query image had the greatest similarity score. This approach allows the relation module to learn a -- possibly complex -- technique for calculating the similarity between a pair of images, rather than imposing a human understanding of similarity/distance. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=14cm]{relationnet}
+		\caption{Overview of Relation Network}
+		The embedding module produces 3d feature maps for each support and query images, then each combination of (support, query) embedding pairs are further processed by the relation module to produce a relation score per pair. The predicted class is the maximum of these scores.
+		\label{fig:relation-net:1}
+	\end{figure}
+	This incredibly simple solution achieves -- as of this writing -- the best results of any one-shot/few-shot techniques and is very easy to implement. However as with most metric-based approaches, Relation Network doesn't scale well as the number of classes increase, as a forward pass through the relation module needs to occur for every class and query image pair. This very quickly becomes a performance bottle-neck, and may be preventative for a many-class high-resolution data-set. \newline \newline
+	The solutions presented in this section are generally quite simple to implement, but have problems with scaling to a large number of classes, as they require computing and comparing embedded representations for each query. This makes metric based methods an unappealing choice for continuous learning tasks, where the number of classes is -- by definition -- going to increase throughout the life of the system. \par
+
 	\subsection{Optimization Based} \label{related-meta-opt:1}
 	\TODO{Week 7}
 	\section{Continuous Learning} \label{related-cont-learning:1}
