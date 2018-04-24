@@ -500,11 +500,34 @@
 		The embedding module produces 3d feature maps for each support and query images, then each combination of (support, query) embedding pairs are further processed by the relation module to produce a relation score per pair. The predicted class is the maximum of these scores.
 		\label{fig:relation-net:1}
 	\end{figure}
-	This incredibly simple solution achieves -- as of this writing -- the best results of any one-shot/few-shot techniques and is very easy to implement. However as with most metric-based approaches, Relation Network doesn't scale well as the number of classes increase, as a forward pass through the relation module needs to occur for every class and query image pair. This very quickly becomes a performance bottle-neck, and may be preventative for a many-class high-resolution data-set. \newline \newline
+	This incredibly simple solution achieves -- as of this writing -- the best results of any one-shot/few-shot techniques and is very easy to implement. However as with most metric-based approaches, Relation Network doesn't scale well as the number of classes increase, as a forward pass through the relation module needs to occur for every class and query image pair. This very quickly becomes a performance bottle-neck, and may be preventative for a many-class, high-resolution data-set. \newline \newline
 	The solutions presented in this section are generally quite simple to implement, but have problems with scaling to a large number of classes, as they require computing and comparing embedded representations for each query. This makes metric based methods an unappealing choice for continuous learning tasks, where the number of classes is -- by definition -- going to increase throughout the life of the system. \par
-	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
 
 	\subsection{Optimization Based} \label{related-meta-opt:1}
+	Optimization based solutions perform few-shot meta-learning by either learning an update rule which is substituted in place of a standard optimizer; or by learning an initial set of weights which are optimal for rapid improvement from few gradient steps. A major advantage of this technique over model based and metric based approaches is that a ready-to-go classifier is obtained after presenting the new class-examples, meaning that the model's computational complexity doesn't scale so dramatically with more classes. \par
+	
+	\subsubsection{Optimization as a Model for Few-Shot Learning}
+	\parencite{oaamffsl}
+	Short \par
+
+	
+	\subsubsection{Learned Optimizers that Scale and Generalize}
+	\parencite{lotsag}
+	Long \par
+
+	
+	\subsubsection{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}
+	\parencite{maml}
+	Long \par
+
+		
+	\subsubsection{Reptile: a Scalable Metalearning Algorithm}
+	\parencite{reptile}
+	Long \par
+
+	
+	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
+	
 	\TODO{Week 7}
 	\section{Continuous Learning} \label{related-cont-learning:1}
 	\TODO{Week 8}
