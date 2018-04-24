@@ -507,9 +507,15 @@
 	Optimization based solutions perform few-shot meta-learning by either learning an update rule which is substituted in place of a standard optimizer; or by learning an initial set of weights which are optimal for rapid improvement from few gradient steps. A major advantage of this technique over model based and metric based approaches is that a ready-to-go classifier is obtained after presenting the new class-examples, meaning that the model's computational complexity doesn't scale so dramatically with more classes. \par
 	
 	\subsubsection{Optimization as a Model for Few-Shot Learning}
-	\parencite{oaamffsl}
-	Short \par
-
+	The work of Ravi et. al \parencite{oaamffsl} identifies that the gradient descent update rule of a neural network (equation \ref{update:1}) resembles the cell-state update rule for an LSTM (equation \ref{update:2}), and considers that a standard optimizer could be replaced by an LSTM. Their approach proposes a meta-learner consisting of an instance of a shared-weight LSTM per parameter in the base-learner, such that each parameter is tracked by an LSTM with its own cell-state. A conscious decision is made to share the same weights between each instance, so as to minimize the overhead in tracking a large number of parameters. \par
+	\begin{align} \label{update:1}
+	\theta_{t} = \theta_{t-1}-\alpha_{t}\Delta_{\theta_{t-1}}\mathcal{L}
+	\end{align}
+	\begin{align} \label{update:2}
+	c_{t} = f_{t}\odot c_{t-1}+\i_{t}\odot \tilde{c}_t
+	\end{align}
+	The results garnered make this an impressive and powerful system, but not without its caveats. The training of LSTMs is notoriously tricky, with this paper making mentions of several specific hyper-parameters and design choices made to obtain such results. As such, difficulties would likely be encountered when applying the technique to different architectures or problem domains. \par
+	A limiting design aspect of this approach is that there is no communication between parameter LSTMs. The meta-learner's gradient updates are a function of only that specific parameter's history, therefore never allowing the meta-learner to have a ``global view'' of the model's weights or gradients. An ideal solution would allow for the modelling of relationships between parameters. \par 
 	
 	\subsubsection{Learned Optimizers that Scale and Generalize}
 	\parencite{lotsag}
