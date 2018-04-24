@@ -1,5 +1,5 @@
 \documentclass{report}
-\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[a4paper, total={17cm, 24cm}]{geometry}
 \usepackage{amsmath}
 \usepackage{bm}
 \usepackage{pgfplots}
@@ -239,7 +239,7 @@
 	\end{align}
 	where $\gamma$ is the momentum term which indicates how much movement we wish to carry forward from previous time-steps.
 	
-	\subsubsection{Nesterov Accelerated Gradient Descent}
+	\subsubsection{Nesterov Accelerated Gradient Descent} \label{nesterov}
 	If we consider momentum to compound the previous slopes such as a ball rolling down a hill, we end up with a problem where the momentum may cause the parameters to overshoot the minimum. Nesterov Accelerated Gradient Descent \parencite{nesterov} pre-emptively considers post-step parameters and makes adjustments to the step \textit{actually} taken. It does so by approximating the position after a momentum parameter update ($\bm{\theta} - \gamma\bm{v}_{t-1}$), and computes the loss gradient not with respect to the current parameters, but to the approximate future position of the parameters. This optimisation strategy essentially glances into the future and makes a pre-emptive correction.
 	\begin{align}
 		\bm{v}_t &= \gamma \bm{v}_{t-1} + \alpha \Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta} - \gamma\bm{v}_{t-1}) \\
@@ -507,7 +507,7 @@
 	Optimization based solutions perform few-shot meta-learning by either learning an update rule which is substituted in place of a standard optimizer; or by learning an initial set of weights which are optimal for rapid improvement from few gradient steps. A major advantage of this technique over model based and metric based approaches is that a ready-to-go classifier is obtained after presenting the new class-examples, meaning that the model's computational complexity doesn't scale so dramatically with more classes. \par
 	
 	\subsubsection{Optimization as a Model for Few-Shot Learning}
-	The work of Ravi et. al \parencite{oaamffsl} identifies that the gradient descent update rule of a neural network (equation \ref{update:1}) resembles the cell-state update rule for an LSTM (equation \ref{update:2}), and considers that a standard optimizer could be replaced by an LSTM. Their approach proposes a meta-learner consisting of an instance of a shared-weight LSTM per parameter in the base-learner, such that each parameter is tracked by an LSTM with its own cell-state. A conscious decision is made to share the same weights between each instance, so as to minimize the overhead in tracking a large number of parameters. \par
+	The work of Ravi et. al. \parencite{oaamffsl} identifies that the gradient descent update rule of a neural network (equation \ref{update:1}) resembles the cell-state update rule for an LSTM (equation \ref{update:2}), and considers that a standard optimizer could be replaced by an LSTM. Their approach proposes a meta-learner consisting of an instance of a shared-weight LSTM per parameter in the base-learner, such that each parameter is tracked by an LSTM with its own cell-state. A conscious decision is made to share the same weights between each instance, so as to minimize the overhead in tracking a large number of parameters. \par
 	\begin{align} \label{update:1}
 	\theta_{t} = \theta_{t-1}-\alpha_{t}\Delta_{\theta_{t-1}}\mathcal{L}
 	\end{align}
@@ -518,8 +518,23 @@
 	A limiting design aspect of this approach is that there is no communication between parameter LSTMs. The meta-learner's gradient updates are a function of only that specific parameter's history, therefore never allowing the meta-learner to have a ``global view'' of the model's weights or gradients. An ideal solution would allow for the modelling of relationships between parameters. \par 
 	
 	\subsubsection{Learned Optimizers that Scale and Generalize}
-	\parencite{lotsag}
-	Long \par
+	Following on from \parencite{oaamffsl}, Wichrowska et. al. \parencite{lotsag} also apply RNNs to the task of optimization in the few-shot learning domain, but allow interactions between parameters of the network by using a layered RNN structure (see figure \ref{fig:optimizer-that-scale:1}). This gives the meta-learner a better understanding of the loss-surface, and therefore the capacity to perform more informed gradient updates. They also implement several other improvements inspired by modern optimizers, which shall be briefly covered here as they are of interest for the proposal in section \ref{proposal}.
+	The implemented features inspired by optimization literature are:
+	\begin{itemize}
+		\item\textbf{Attention and Nesterov Momentum}: Nesterov Momentum (section \ref{nesterov}) computes gradients at future positions. Similarly they use RNN attention mechanisms to explore the loss surface ahead of the current parameter position.
+		\item\textbf{Momentum on multiple time-scales}: By providing the optimizer with exponential moving averages of the gradients on several time-scales, the meta-leaner has access to information about how rapidly the gradient is changing and about the degree of noise in the gradient.
+		\item\textbf{Dynamic input scaling}: They provide the meta-learner with multiple metrics involving the scale of weights and gradients, thereby aiding the optimizer in becoming invariant to parameter scale.
+		\item\textbf{Decomposition of output into direction and step-length}: They separate the optimizer's outputs into direction and step-length, and give it no access to the learning rate so it is forced to learn from the history of gradients, instead of memorising successful learning rates.
+	\end{itemize}
+	\begin{figure}[h]
+	\centering
+	\includegraphics[width=10cm]{scalearchitecture}
+	\caption{\textit{Learned Optimizers that Scale and Generalize} architecture}
+	The system utilizes three levels of RNNs, with shared weights between instances at each. Tensor and Global RNN instances receive the average latent state from the layer below, and pass down their outputs.
+	\label{fig:optimizer-that-scale:1}
+	\end{figure}
+	Their experiments boast incredibly strong results, showing that -- unlike any prior methods -- this technique generalises to different problem domains, activation functions, architectures, and layer types; all previously unseen. This impressive feat is attributed to not only the layered RNN architecture, but likely the large number of aforementioned added features. Due to this complexity, this is a challenging system to re-implement and put to practice elsewhere. \par
+	 
 
 	
 	\subsubsection{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}
@@ -538,7 +553,7 @@
 	\section{Continuous Learning} \label{related-cont-learning:1}
 	\TODO{Week 8}
 	\subsection{Class-Incremental Learning}
-	\chapter{Proposal}
+	\chapter{Proposal} \label{proposal}
 	\TODO{Week 9}
 	\TODO{Week 10}
 
