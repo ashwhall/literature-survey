@@ -417,9 +417,11 @@
 	
 	\chapter{Related Works} \label{related:1}
 	\TODO{Week 8}
-	In this section I will introduce and summarise some works which are related to my problem domain, and will discuss their practicality and ... \TODO{Will complete this intro when I've finished the related works section}
+	In this section we will introduce and summarise some works which are related to the problem domain, and will discuss their practicality and ... \TODO{Will complete this intro when I've finished the related works section}
+	
 	\section{Few-Shot Meta-Learning}
-	\TODO{Week 7 - will complete this intro when I've finished the meta-learning section}
+	The few-shot works discussed in this section represent a cross-section of most types of solutions, but especially those that relate to the thesis proposal. The techniques are broken into three sub-categories, \emph{model based}, \emph{metric based} and \emph{optimization based} -- each of which have their perks and downfalls, which are briefly mentioned at the end of each sub-section, and compared in section \TOCITE[reference the table that I'll make after continuous learning]{}. Few-shot meta-learning generally is usually considered separate to continuous-learning, so many of the approaches found in this section are less-applicable than others in the context of the proposal in chapter \ref{proposal}.
+
 	\subsection{Model Based} \label{related-meta-modl:1}
 	Model based meta-learning techniques are those that base the solution around a specific model design. These are typically implemented with some sort of memory unit -- such as an LSTM or memory network -- though this isn't a mandatory. Basing a solution on a custom model gives more freedom to design a task-specific system, but generally suffers as it can be difficult to change the architecture for different tasks. \par
 	
@@ -518,18 +520,18 @@
 	A limiting design aspect of this approach is that there is no communication between parameter LSTMs. The meta-learner's gradient updates are a function of only that specific parameter's history, therefore never allowing the meta-learner to have a ``global view'' of the model's weights or gradients. An ideal solution would allow for the modelling of relationships between parameters. \par 
 	
 	\subsubsection{Learned Optimizers that Scale and Generalize}
-	Following on from \parencite{oaamffsl}, Wichrowska et. al. \parencite{lotsag} also apply RNNs to the task of optimization in the few-shot learning domain, but allow interactions between parameters of the network by using a layered RNN structure (see figure \ref{fig:optimizer-that-scale:1}). This gives the meta-learner a better understanding of the loss-surface, and therefore the capacity to perform more informed gradient updates. They also implement several other improvements inspired by modern optimizers, which shall be briefly covered here as they are of interest for the proposal in section \ref{proposal}.
+	Following on from \parencite{oaamffsl}, Wichrowska et. al. \parencite{lotsag} also apply RNNs to the task of optimization in the few-shot learning domain, but allow interactions between parameters of the network by using a layered RNN structure (see figure \ref{fig:optimizer-that-scale:1}). This gives the meta-learner a better understanding of the loss-surface, and therefore the capacity to perform more informed gradient updates. Throughout the training of the meta-learner, a good initialisation for the collection of base-learners is implicitly learnt. They also implement several other improvements inspired by modern optimizers, which shall be briefly covered here as they are of interest for the proposal in chapter \ref{proposal}.
 	The implemented features inspired by optimization literature are:
 	\begin{itemize}
 		\item\textbf{Attention and Nesterov Momentum}: Nesterov Momentum (section \ref{nesterov}) computes gradients at future positions. Similarly they use RNN attention mechanisms to explore the loss surface ahead of the current parameter position.
-		\item\textbf{Momentum on multiple time-scales}: By providing the optimizer with exponential moving averages of the gradients on several time-scales, the meta-leaner has access to information about how rapidly the gradient is changing and about the degree of noise in the gradient.
+		\item\textbf{Momentum on multiple time-scales}: By providing the optimizer with exponential moving averages of the gradients on several time-scales, the meta-learner has access to information about how rapidly the gradient is changing and about the degree of noise in the gradient.
 		\item\textbf{Dynamic input scaling}: They provide the meta-learner with multiple metrics involving the scale of weights and gradients, thereby aiding the optimizer in becoming invariant to parameter scale.
 		\item\textbf{Decomposition of output into direction and step-length}: They separate the optimizer's outputs into direction and step-length, and give it no access to the learning rate so it is forced to learn from the history of gradients, instead of memorising successful learning rates.
 	\end{itemize}
 	\begin{figure}[h]
 	\centering
 	\includegraphics[width=10cm]{scalearchitecture}
-	\caption{\textit{Learned Optimizers that Scale and Generalize} architecture}
+	\caption{Learned Optimizers that Scale and Generalize architecture}
 	The system utilizes three levels of RNNs, with shared weights between instances at each. Tensor and Global RNN instances receive the average latent state from the layer below, and pass down their outputs.
 	\label{fig:optimizer-that-scale:1}
 	\end{figure}
@@ -538,14 +540,50 @@
 
 	
 	\subsubsection{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}
-	\parencite{maml}
-	Long \par
-
-		
+	The previous optimization-based meta-learning solutions primarily target the training of a network, but don't focus heavily on obtaining a good initial set of parameters. The approach by Finn et. al. \parencite{maml} called \emph{MAML} specifically addresses this, with the meta-learning process directly optimizing for initial parameters which can be rapidly re-trained to learn new tasks (see figure \ref{fig:maml-params:1}). The technique is model-agnostic in that there there is no separate meta-learner, and that it only requires that the loss function is smooth-enough in the base-learner's parameters $\bm{\theta}$ for gradient-based learning.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=6.5cm]{mamlparams}
+		\caption{MAML optimization overview}
+		MAML optimizes for parameters that can quickly adapt when shown new tasks. Here the new task optimal parameters are indicated by $\theta^*_i$
+		\label{fig:maml-params:1}
+	\end{figure}
+	The meta-learning aspect of this approach is in entirely in the training algorithm (see figure \ref{fig:maml-algo:1}), with the model initialized with random weights $\theta$. MAML computes adapted parameters from each task's training set, and temporarily stores the weights $\theta'_i$ per task:
+	\begin{align}
+	\theta'_i = \theta - \alpha \Delta_{\theta} \mathcal{L}_{T_{i}}(f\theta)
+	\end{align}
+	Where $\alpha$ is a learning rate, $\mathcal{L}$ is a loss function, $f_\theta$ is a model parametrized by $\theta$, and $T_i$ is the $i$th task.
+	The meta-learner objective is then to minimize the loss jointly for the updated weights and parameters using the test-set of each respective task:
+	\begin{align}
+	\min_\theta
+	\sum_{T_i} \mathcal{L}_{T_{i}}(f_{\theta'_i}) = 
+	\sum_{T_i}\mathcal{L}_{T_{i}}(f_{\theta-\alpha\Delta_\theta\mathcal{L}_{T_{i}}(f_\theta)}) \label{eqn:maml}
+	\end{align}
+	The parameters of the model are then updated using gradient-descent, computing gradients for the loss computed in equation \ref{eqn:maml}:
+	\begin{align}
+	\theta \gets \theta - \beta\Delta_\theta \sum_{T_i} \mathcal{L}_{T_{i}}(f_{\theta'_i}) \label{eqn:maml2}
+	\end{align}
+	MAML yielded very impressive results, with applicability to domains as varied as robotic control, reinforcement learning and computer vision. The technique allows rapid adaptation to unseen tasks, and is truly model-agnostic. The computation of equation \ref{eqn:maml2} is costly however, as it requires the calculation of second-order derivatives; it is desired to have a simpler technique in terms of computational complexity and implementation, as few libraries directly support second-derivatives. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=9cm]{mamlalgo}
+		\caption{MAML training algorithm}
+		MAML computes adapted parameters from each task's training set (lines 5-6) then optimizes the model's parameters with the loss of each task's test set (line 8).
+		\label{fig:maml-algo:1}
+	\end{figure}
+	
 	\subsubsection{Reptile: a Scalable Metalearning Algorithm}
-	\parencite{reptile}
-	Long \par
-
+	Nichol and Schulman \parencite{reptile} sought to remove the second derivative and replace it with a simpler mechanism with their development of Reptile. Reptile optimizes for parameters which can rapidly adapt to new tasks, using a simpler and more performant approach. \par
+	Reptile simply computes and temporarily stores updated weights $W_i$ for each task $T_i$ in a batch. The actually-applied parameter update is a down-scaled gradient step in the direction of the sum all of them. Reptile effectively performs gradient descent in the direction of a number of tasks at once, without over-fitting to any of them.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=6cm]{reptilealgo}
+		\caption{Reptile training algorithm}
+		Reptile computes updated weights per task, then performs a gradient step in the combined direction of all of them.
+		\label{fig:reptile-algo:1}
+	\end{figure}
+	The results yielded by Reptile are similar -- but slightly poorer -- to those of MAML, but could be considered a fair trade-off for a far-simpler implementation, and better computational efficiency. Reptile has the same applicability as for MAML, as it can be applied to essentially any model/task which can be optimized via gradient descent.
+	
 	
 	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
 	
