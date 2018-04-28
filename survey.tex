@@ -427,7 +427,7 @@
 	
 	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
 	The technique of Miconi et. al. \parencite{ltlwbohb} uses the theory of Hebbian plasticity (section \ref{hebbian:1}) to allow for connections between highly active pairs of neurons to increase in efficacy throughout their lifetime. This is achieved by defining a time-dependant quantity they call the ``Hebbian trace'', which acts as a moving-average of pair-wise synaptic activities. Using back-propagation, they train a plasticity parameter which determines how much the Hebbian trace influences the pair's connection; once trained, this plasticity parameter is fixed. The Hebbian trace is computed during all forward-passes of the network throughout its lifetime, weighting the activations of neuron-pairs proportionate to their learned plasticity. \par
-	Although the technique described is primarily for continuous learning, they also apply the problem to a one-shot task. The task described is a toy-problem, but shows that through utilisation of the implemented Hebbian plasticity, the model is capable of quickly adapting its learning capacity to deal with the few-shot problem domain. The Hebbian trace could very easily be added into any artificial neural network architecture as an additional learned parameter. However, this technique's effectiveness at continuous learning tasks eventually becomes limited as the network's learned internal representation still remains fixed, meaning that there is no opportunity for it to consolidate knowledge as the breadth of the problem domain grows. \par
+	Although the technique described is primarily for continuous learning, they also apply it to a one-shot task. The task described is a toy-problem, but shows that through utilisation of the implemented Hebbian plasticity, the model is capable of quickly adapting its learning capacity to deal with the few-shot problem domain. The Hebbian trace could very easily be added into any artificial neural network architecture as an additional learned parameter. However, this technique's effectiveness at continuous learning tasks eventually becomes limited as the network's learned internal representation still remains fixed, meaning that there is no opportunity for it to consolidate knowledge as the breadth of the problem domain grows. \par
 	
 	\subsubsection{One-shot Learning with Memory-Augmented Neural Networks}
 	One-shot learning is approached by Santoro et. al. \parencite{oslwmann} using a memory-augmented neural network (section \ref{memory-nets:1}). memory networks are an ideal choice for few-shot learning, as they can rapidly encode, decode and selectively forget items from their external memory unit. The typical method for accessing memory locations is to use simple ``attention'', which allows the model to learn its own strategy. The authors of this paper recognise that this may result in an attention mechanism that is better purposed to sequential data, rather than the strictly un-ordered task of few-shot learning. They propose a novel memory access module called the Least Recently Used Access (LRUA) module, which is a content-based memory writer that writes memories to either the least-used or most-recently used memory locations, depending on the network's context. \par
@@ -516,7 +516,7 @@
 	\begin{align} \label{update:2}
 	c_{t} = f_{t}\odot c_{t-1}+\i_{t}\odot \tilde{c}_t
 	\end{align}
-	The results garnered make this an impressive and powerful system, but not without its caveats. The training of LSTMs is notoriously tricky, with this paper making mentions of several specific hyper-parameters and design choices made to obtain such results. As such, difficulties would likely be encountered when applying the technique to different architectures or problem domains. \par
+	The results garnered make this an impressive and powerful system, but not without its caveats. The training of LSTMs is notoriously tricky -- this paper mentions several specific hyper-parameters and design choices made to obtain such results. As such, difficulties would likely be encountered when applying the technique to different architectures or problem domains. \par
 	A limiting design aspect of this approach is that there is no communication between parameter LSTMs. The meta-learner's gradient updates are a function of only that specific parameter's history, therefore never allowing the meta-learner to have a ``global view'' of the model's weights or gradients. An ideal solution would allow for the modelling of relationships between parameters. \par 
 	
 	\subsubsection{Learned Optimizers that Scale and Generalize}
@@ -540,7 +540,7 @@
 
 	
 	\subsubsection{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}
-	The previous optimization-based meta-learning solutions primarily target the training of a network, but don't focus heavily on obtaining a good initial set of parameters. The approach by Finn et. al. \parencite{maml} called \emph{MAML} specifically addresses this, with the meta-learning process directly optimizing for initial parameters which can be rapidly re-trained to learn new tasks (see figure \ref{fig:maml-params:1}). The technique is model-agnostic in that there there is no separate meta-learner, and that it only requires that the loss function is smooth-enough in the base-learner's parameters $\bm{\theta}$ for gradient-based learning.
+	The previous optimization-based meta-learning solutions primarily target the training of a network, but don't focus heavily on obtaining a good initial set of parameters. The approach by Finn et. al. \parencite{maml} called \emph{MAML} specifically addresses this, with the meta-learning process directly optimizing for initial parameters which can be rapidly re-trained to learn new tasks (see figure \ref{fig:maml-params:1}). There is no separate meta-learner, meaning that this technique is model-agnostic and can even be applied to different machine-learning optimization problems such as reinforcement learning. It only requires that the system is parametrized by some parameters $\bm{\theta}$, and that the loss function is smooth-enough in those parameters for gradient-based learning.
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=6.5cm]{mamlparams}
@@ -563,7 +563,7 @@
 	\begin{align}
 	\theta \gets \theta - \beta\Delta_\theta \sum_{T_i} \mathcal{L}_{T_{i}}(f_{\theta'_i}) \label{eqn:maml2}
 	\end{align}
-	MAML yielded very impressive results, with applicability to domains as varied as robotic control, reinforcement learning and computer vision. The technique allows rapid adaptation to unseen tasks, and is truly model-agnostic. The computation of equation \ref{eqn:maml2} is costly however, as it requires the calculation of second-order derivatives; it is desired to have a simpler technique in terms of computational complexity and implementation, as few libraries directly support second-derivatives. \par
+	Although techniques which meta-learn an update rule may intuitively be more efficacious, research \parencite{universality} has shown that there is no loss of representational power when solely optimizing the initial parameters. The same research also showed that learning the initial parameters in this way is extremely resilient to over-fitting on small data-sets. The MAML algorithm yields very impressive results, with applicability to domains as varied as robotic control, reinforcement learning and computer vision. The technique allows rapid adaptation to unseen tasks, and is truly model-agnostic. The computation of equation \ref{eqn:maml2} is costly however, as it requires the calculation of second-order derivatives; it is desired to have a simpler technique in terms of computational complexity and implementation, as few libraries directly support second-derivatives. \par
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=9cm]{mamlalgo}
@@ -574,7 +574,7 @@
 	
 	\subsubsection{Reptile: a Scalable Metalearning Algorithm}
 	Nichol and Schulman \parencite{reptile} sought to remove the second derivative and replace it with a simpler mechanism with their development of Reptile. Reptile optimizes for parameters which can rapidly adapt to new tasks, using a simpler and more performant approach. \par
-	Reptile simply computes and temporarily stores updated weights $W_i$ for each task $T_i$ in a batch. The actually-applied parameter update is a down-scaled gradient step in the direction of the sum all of them. Reptile effectively performs gradient descent in the direction of a number of tasks at once, without over-fitting to any of them.
+	Reptile simply computes and temporarily stores updated weights $W_i$ for each task $T_i$ in a batch. The update applied to the parameters is a down-scaled gradient step in the direction of the sum all of them. Reptile effectively performs gradient descent in the direction of a number of tasks at once, without over-fitting to any of them.
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=6cm]{reptilealgo}
@@ -590,7 +590,22 @@
 	\TODO{Week 7}
 	\section{Continuous Learning} \label{related-cont-learning:1}
 	\TODO{Week 8}
-	\subsection{Class-Incremental Learning}
+	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
+	As already reviewed in section \ref{related-meta-modl:1}, this application of Hebbian plasticity to continuous learning is sensible, but limited ongoing as the model's internal representation never changes. This results in a fixed-capacity network which is highly dependant on the initial training. An ideal system would allow for parameters to change throughout the lifetime of the model to consolidate knowledge, and to learn new feature representations.
+	
+	\subsubsection{Learning Without Forgetting}
+	Long \\
+	A very literal approach to continuous learning, Li et. al. \parencite{lwf} attempt to mitigate catastrophic interference by considering the base model's responses to new classes of input images as targets. They do so by augmenting the model and adding a new "output head" (see figure \TOCITE{}) for each new collection of classes introduced to the model. When training the model on these new classes, the pre-existing output heads' predicted probability distribution is recorded, and this is included in the loss calculation. \par
+	Show the loss function, explain distillation loss. \\
+	Find a problem! \\
+	\subsubsection{Overcoming Catastrophic Forgetting with Hard Attention to the Task}
+	Short
+	\subsubsection{iCARL: Incremental Classifier and Representation Learning}
+	Short - pre-cursor to GEM
+	\subsubsection{Gradient Episodic Memory for Continual Learning}
+	Long
+	
+
 	\chapter{Proposal} \label{proposal}
 	\TODO{Week 9}
 	\TODO{Week 10}
