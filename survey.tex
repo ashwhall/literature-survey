@@ -536,8 +536,6 @@
 	\label{fig:optimizer-that-scale:1}
 	\end{figure}
 	Their experiments boast incredibly strong results, showing that -- unlike any prior methods -- this technique generalises to different problem domains, activation functions, architectures, and layer types; all previously unseen. This impressive feat is attributed to not only the layered RNN architecture, but likely the large number of aforementioned added features. Due to this complexity, this is a challenging system to re-implement and put to practice elsewhere. \par
-	 
-
 	
 	\subsubsection{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}
 	The previous optimization-based meta-learning solutions primarily target the training of a network, but don't focus heavily on obtaining a good initial set of parameters. The approach by Finn et. al. \parencite{maml} called \emph{MAML} specifically addresses this, with the meta-learning process directly optimizing for initial parameters which can be rapidly re-trained to learn new tasks (see figure \ref{fig:maml-params:1}). There is no separate meta-learner, meaning that this technique is model-agnostic and can even be applied to different machine-learning optimization problems such as reinforcement learning. It only requires that the system is parametrized by some parameters $\bm{\theta}$, and that the loss function is smooth-enough in those parameters for gradient-based learning.
@@ -585,28 +583,70 @@
 	The results yielded by Reptile are similar -- but slightly poorer -- to those of MAML, but could be considered a fair trade-off for a far-simpler implementation, and better computational efficiency. Reptile has the same applicability as for MAML, as it can be applied to essentially any model/task which can be optimized via gradient descent.
 	
 	
-	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
-	
-	\TODO{Week 7}
 	\section{Continuous Learning} \label{related-cont-learning:1}
-	\TODO{Week 8}
+	Continuous learning techniques vary vastly, mainly as there is no general consensus as to what the task actually is, with the only agreement being that it is a system that can learn throughout a "lifetime", and retains information about previously learnt tasks. The works discussed in this section apply very different approaches to mostly different problems, with most being partially inapplicable to real-world situations.
+	
 	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
 	As already reviewed in section \ref{related-meta-modl:1}, this application of Hebbian plasticity to continuous learning is sensible, but limited ongoing as the model's internal representation never changes. This results in a fixed-capacity network which is highly dependant on the initial training. An ideal system would allow for parameters to change throughout the lifetime of the model to consolidate knowledge, and to learn new feature representations.
 	
 	\subsubsection{Learning Without Forgetting}
-	Long \\
-	A very literal approach to continuous learning, Li et. al. \parencite{lwf} attempt to mitigate catastrophic interference by considering the base model's responses to new classes of input images as targets. They do so by augmenting the model and adding a new "output head" (see figure \TOCITE{}) for each new collection of classes introduced to the model. When training the model on these new classes, the pre-existing output heads' predicted probability distribution is recorded, and this is included in the loss calculation. \par
-	Show the loss function, explain distillation loss. \\
-	Find a problem! \\
+	A very literal approach to continuous learning, Li et. al. \parencite{lwf} attempt to mitigate catastrophic interference by considering the base model's responses to new classes of input images as targets. They do so by augmenting the model and adding a new "output head" (see figure \TOCITE{}) for each new collection of classes introduced to the model. When training the model on these new classes, the pre-existing output heads' predicted probability distribution is recorded, and this is included in the loss calculation. \newline
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=8cm]{lwfarchitecture}
+		\caption{Learning Without Forgetting architecture}
+		A new output head (orange) is added for each batch of new classes. The model's predicted class probability distribution over the old classes is recorded recorded and incorporated into the loss function. 
+		\label{fig:lwf:1}
+	\end{figure}
+	They utilize a loss function developed by Hinton et. al \parencite{distillation} which was designed to distil the information in a neural network; the original purpose was to compress knowledge into a smaller neural network. The loss for Learning Without Forgetting (LwF) is separated into two parts: $\mathcal{L}_{old}$ dealing with the pre-existing output heads' collective class distributions $\bm{y}_o$, and $\mathcal{L}_{old}$ dealing with the new output head's class distribution $\bm{y}_n$. Cross-entropy (equation \ref{eqn:lwf:1}) is used for the new output head, and distillation loss (equation \ref{eqn:lwf:2}) for all pre-existing heads. \par
+	\begin{align} \label{eqn:lwf:1}
+	\mathcal{L}_{new}(\bm{y}_n,\hat{\bm{y}}_n) = -\bm{y}_n \cdot \text{log } \bm{\hat{y}}_n
+	\end{align}
+	\begin{align} \label{eqn:lwf:2}
+	\mathcal{L}_{old}(\bm{y}_o,\hat{\bm{y}}_o) = -\sum_{i=1}^{l} {y'}_{o}^{(i)} \cdot \text{log } \hat{y'}_n^{(i)})
+	\end{align}
+	Where $\bm{\hat{y}}_n$ is the one-hot target over the new classes, $\bm{\hat{y}}_o$ is the recorded probability distribution, and $\hat{y'}_n^{(i)}$ and ${y'}_{o}^{(i)}$ are the targets and predictions over the old classes with weights increased for smaller probabilities. The training process is sensitive, so they perform a "warm-up stage" where only the parameters in the new head are trained, before training with the full loss function end-to-end. \par
+	While a simple and elegant approach, they produced mixed results. LwF's performance on the new dataset is quite consistently better than its competitors, yet demonstrates arbitrarily better and worse resilience to catastrophic interference for the old data-set. This could be a result of the fact that as the technique is not meta-learnt, the training process never receives direct feedback on its performance on the original data-set. If a new data-set and old data-set are not very similar, there is nothing ensuring that the model retains an internal feature representation that is relevant to the old classes; this would lead to performance degradation over time. \par
+	
 	\subsubsection{Overcoming Catastrophic Forgetting with Hard Attention to the Task}
-	Short
-	\subsubsection{iCARL: Incremental Classifier and Representation Learning}
-	Short - pre-cursor to GEM
+	Taking inspiration from neurology, Serr\'a et. al. \parencite{hat} devised an implementation of \emph{inhibitory synapses} -- a biological process which makes a neuron less likely to fire. They perform this by learning a task-based attention mechanism, which masks the activations on a per-neuron basis. They perform a learnt embedding of the task description per layer, which acts as the gate for that layer. This teaches the network to learn sparse internal representations for each task, effectively reducing the required capacity within the network during training, and allowing for re-use of suitable feature representations. \par
+	Catastrophic interference is well addressed with this technique, claiming reductions of 45 - 80\%. There is potential for the application to meta-learning tasks, though this is unexplored as of yet. A core limitation to this work is that the tasks must align in their output format; that is, each of the tasks were strictly image classification between 10 classes. Adding additional classes to the model is unsupported, and as such, its applicability to real-world continuous learning is quite limited. \par
+	
 	\subsubsection{Gradient Episodic Memory for Continual Learning}
 	Long
+	Gradient Episodic Memory (GEM), proposed by Lopez-Paz et. al. \parencite{gem} considers storing examples in memory to mitigate catastrophic forgetting. They store the and compute loss for the $m$ most recently-seen examples from each task, with a total memory budget of $M=mT$ for $T$ distinct tasks. Storing examples for "replay" is a long-established technique, and isn't a true method of knowledge retention. GEM evicts memories on a least-recently-used basis, the model would quickly over-fit if the parameters were to be repeatedly optimized for everything in memory, seeing each example $m+1$ times before eviction. GEM side-steps this by instead minimising the loss with the constraint that loss for old examples cannot increase. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=11cm]{gem}
+		\caption{GEM gradient proposal example}
+		When gradients computed for new examples and memories agree (a), they are accepted; when they disagree (b), a new gradient is proposed (c) that satisfies the constraints.
+		\label{fig:gem:1}
+	\end{figure}
+	Minimising with constraints is an unconventional technique, and is posed as a per-parameter vector-direction constraint. They first compute the gradient for each parameter for the given example, then similarly compute the gradient for each example stored in memory. If the direction of the proposed gradient step doesn't point in the same direction as the gradient computed from memory (figure \ref{fig:gem:1}), they adjust the update direction to satisfy both directions. This can be seen as not directly optimizing towards a loss minimum for the memories, but as never adjusting parameters away from this minimum. \par
+	This method demonstrates a strong reduction in catastrophic interference, but has two problems which cause the practicality of this method is questionable. It involves -- in a very literal sense -- storing old examples and replaying them, which goes against the idea of a true continuous learner and grows rapidly as the number of tasks increase. Secondly, this technique doesn't allow for a varied number of classes between classification tasks which limits it to only tasks with the same output format. \par
 	
-
+	\subsubsection{Overcoming Catastrophic Forgetting}
+	Kirkpatrick et. al. \parencite{ewc} propose a solution for continuous learning by designing a loss function that ties parameters to a space in which the model performed well on a previous task. They introduce an algorithm referred to as Elastic Weight Consolidation (EWC), which slows down learning on weights based on how important they are to previously seen tasks, and gives learning trajectories to maintain optimal performance (figure \ref{fig:ewc:1}). They essentially seek to find a set of good parameters for a new task that is close to good parameters for previous tasks. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=11cm]{ewc}
+		\caption{Elastic Weight Consolidation parameter updates}
+		EWC causes training trajectories which maintain performance on old tasks.
+		\label{fig:ewc:1}
+	\end{figure}
+	They use a Fischer information matrix $F$, which is effectively an analytical tool for estimating the importance of the parameters $\bm{\theta}$. They then use this to weight the loss of a quadratic function which constrains the parameters to stay in the region of good performance for previous tasks $A$. As the function is quadratic, the parameters are anchored to $\theta_{A,i}^*$ as by a spring, forcing the trajectory shown in \ref{fig:ewc:1}. The loss function then, is:
+	\begin{align}
+   	\mathcal{L}(\theta) = \mathcal{L}_B(\theta) + \sum_{i} \frac{\lambda}{2} F_i (\theta_i - \theta_{A,i}^*)^2	
+	\end{align}
+	where $\mathcal{L}_B$ is the loss for a new task, and the sum is the loss of the parameters, which elastically constrain the parameters to a space near good performance on task $A$. \par
+	Given that the solution can be implemented by simply computing a Fischer information matrix and amending the loss function, and that it is catastrophic forgetting, it's a highly attractive technique. That being said, although it's generalisable to most parametrized machine-learning systems, as with most other techniques it doesn't allow for a varied number of classification categories between tasks. 
+	
+	\subsection{Summary of Works}
+	I'll put a table here:
+	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
+	
 	\chapter{Proposal} \label{proposal}
+	
 	\TODO{Week 9}
 	\TODO{Week 10}
 
