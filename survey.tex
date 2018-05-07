@@ -215,7 +215,7 @@
 	\end{align}
 	That is, once we know the gradient of the loss with respect to the second layer's weights, we can compute the gradient of the second layer's weights with respect to the first layer's weights and multiply the two to find the gradient of the loss with respect to the first layer's weights. This generalises to neural networks with any number of layers of differing types. This is an intuitive relationship, as we are essentially calculating the compound contribution that a change in any one parameter's value will have on the final output -- the loss.  \par
 	This technique used since the 1970s \parencite{backprop} is aptly named \textit{backpropagation of error gradient}, as it involves the propagation of the gradient of the error -- or loss -- from the end of the network back. \par
-	Returning to the concept of SGD (section \ref{sgd:1}) which was introduced on a conceptual level, we can now delve deeper into the application of the algorithm. Assuming that we have computed the gradient of each parameter in the network for the given examples in our batch, we can visualise this as a ``loss landscape'', whereby moving the parameters down-hill results in a reduction in the loss. Adjusting a parameter by the negative of the gradient will result in a ``step'' that moves the parameter closer to a local minimum, with the objective to reach the lowest point possible. A configurable hyperparameter is the \textit{learning-rate}, commonly represented by $\alpha$, which is the ``size'' of the step to take - that is, the coefficient of the negative of the gradient to apply (eqn. \ref{sgd:1}). \par
+	Returning to the concept of SGD (section \ref{sgd:1}) which was introduced on a conceptual level, we can now delve deeper into the application of the algorithm. Assuming that we have computed the gradient of each parameter in the network for the given examples in our batch, we can visualise this as a ``loss landscape'', whereby moving the parameters down-hill results in a reduction in the loss. Adjusting a parameter by the negative of the gradient will result in a ``step'' that moves the parameter closer to a local minimum, with the objective to reach the lowest point possible. A configurable hyper-parameter is the \textit{learning-rate}, commonly represented by $\alpha$, which is the ``size'' of the step to take - that is, the coefficient of the negative of the gradient to apply (eqn. \ref{sgd:1}). \par
 	\begin{align} \label{sgd:1}
 		\bm{\theta} = \bm{\theta} - \alpha \Delta_{\bm{\theta}} \mathcal{L}(\bm{\theta}, \bm{\hat{y}}, \bm{y})
 	\end{align}
@@ -264,7 +264,7 @@
 	\end{align}
 	RMSprop \parencite{rmsprop} is in effect identical to Adadelta, and were both developed to address the diminishing learning rate problem of Adagrad.
 	
-	\subsubsection{Adam}
+	\subsubsection{Adam} \label{adam:1}
 	Adaptive Moment Estimation (Adam) \parencite{adam} builds from the previous adaptive optimizers by not only storing exponentially decaying averages of past squared gradients $v_{t,i}$, but by also keeping an exponentially decaying average of past gradients $m_{t,i}$ -- note the lack of the word ``squared''. 
 	\begin{align}
 		m_{t, i} &= \beta_1 m_{t-1, i} + (1 - \beta_1)g_{t, i} \\
@@ -419,7 +419,7 @@
 	As the problem domain spans across few-shot meta-learning and continuous learning, there is a myriad of related works of which we will introduce and summarise a selection. We will discuss the techniques used by each with a focus on their applicability to the task of few-shot continuous learning. We will then compare the results produced by each, with a closing discussion on the feasibility of their extension to the combined task. \par
 
 	\section{Few-Shot Meta-Learning}
-	The few-shot works discussed in this section represent a cross-section of most types of solutions, but especially those that relate to the thesis proposal. The techniques are broken into three sub-categories, \emph{model based}, \emph{metric based} and \emph{optimization based} -- each of which have their perks and downfalls, which are briefly mentioned at the end of each sub-section, and compared in section \TOCITE[reference the table that I'll make after continuous learning]{}. Few-shot meta-learning generally is usually considered separate to continuous-learning, so many of the approaches found in this section are less-applicable than others in the context of the proposal in chapter \ref{proposal}.
+	The few-shot works discussed in this section represent a cross-section of most types of solutions, but especially those that relate to the thesis proposal. The techniques are broken into three sub-categories, \emph{model based}, \emph{metric based} and \emph{optimization based} -- each of which have their perks and downfalls, which are briefly mentioned at the end of each sub-section, and compared in section \ref{works:summary}. Few-shot meta-learning generally is usually considered separate to continuous-learning, so many of the approaches found in this section are less-applicable than others in the context of the proposal in chapter \ref{proposal}.
 
 	\subsection{Model Based} \label{related-meta-modl:1}
 	Model based meta-learning techniques are those that base the solution around a specific model design. These are typically implemented with some sort of memory unit -- such as an LSTM or memory network -- though this isn't a mandatory. Basing a solution on a custom model gives more freedom to design a task-specific system, but generally suffers as it can be difficult to change the architecture for different tasks. \par
@@ -640,7 +640,7 @@
 	where $\mathcal{L}_B$ is the loss for a new task, and the sum is the loss of the parameters, which elastically constrain the parameters to a space near good performance on task $A$. \par
 	Given that the solution can be implemented by simply computing a Fischer information matrix and amending the loss function, it's a highly attractive technique. That being said, although it's generalisable to most parametrized machine-learning systems, as with most other techniques it doesn't allow for a varied number of classification categories between tasks. 
 	
-	\section{Summary}
+	\section{Summary} \label{works:summary}
 	In this chapter we have discussed works related to the domains of few-shot and continuous learning, and considered their feasibility to be extended to the joint-task of few-shot continuous learning. A summary of the results are shown in table \ref{fig:table:1}, where we see that there is no ideal technique. As the task at hand is a combination of both few-shot and continuous learning, we consider
 	In this chapter we have discussed works related to the domains of few-shot and continuous learning. As the task at hand is a combination of both of these areas, we have also considered their feasibility to be extended to the joint task. A summary of the results shown in table \ref{fig:table:1} shows that there is no ideal technique. \par
 	As expected, the methods that designed for few-shot learning are consistently applicable to few-shot tasks; we do, however see that none of the approaches could be considered entirely applicable to continuous learning. The reasons vary between techniques, ranging from entirely incompatible to functional to a limited capacity. \par
@@ -655,7 +655,71 @@
 	\end{table}
 
 	\chapter{Proposal} \label{proposal}
+	The task is to take a model which has been trained to perform classification well on a dataset of $n$ classes $\bm{X}_S = {X_S^1, X_S^2, ..., X_S^n}$, and using only the model's weights and a small number of examples from $m$ disjoint classes $\bm{X}_T = {X_T^1, X_T^2, ..., X_T^m}$, produce a model which can perform well on the combined set of classes $\bm{X}_S \cup \bm{X}_T$. \par
+	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously amended throughout its lifetime.
 	
+	\section{Key Terminology}
+	\textit{Source classes} refer to a set of classes on which a \textit{source model} has been pre-trained without meta-learning. Similarly, a \textit{target model} is produced by extending a source model's classification ability to also include a set of \textit{target classes} -- a disjoint set of classes to those that the source model was trained on. \\
+	The \textit{meta-learner} is the system which facilitates the transformation of a source model into a target model. 
+	\TODO{Check which other terms should be added here once the proposal is done}
+	
+	\section{Datasets}
+	Two image-classification datasets commonly used for computer-vision experiments will be used in this project:
+	\begin{itemize}
+		\item \textbf{CIFAR-100} consists of 60,000 32x32 images in 100 classes with 600 images per class. 
+		\item \textbf{miniImagenet} consists of 60,000 images in 10 classes of approximately 256x256 pixels with 600 images per class.
+	\end{itemize}
+	These datasets are to each serve a slightly different purpose -- CIFAR-100 images are sufficiently small to allow for fast training times; miniImagenet images are higher resolution, which represent a more "real-world" set of examples. Due to this, I will utilise CIFAR-100 to test prototype solutions, before applying the same techniques to the more difficult task of miniImagenet. \par 
+
+	\section{Data-Partitioning}
+	Our task involves separating the datasets in two ways -- forming disjoint sets of classes, as well as disjoint sets of examples within each of the class sets. As our datasets both contain the same number of classes and images, we will not make a distinction between the two in this section. \par
+	The splitting of classes will be primarily: 80 classes for meta-training and 20 classes for meta-testing. However, this division may need to change depending on the specific experiment. To transform a model from a 20-way predictor to a 30-way predictor we would need to have at least 30 classes in the meta-test set; more than the number of classes in our pre-determined meta-test set. \par
+	Due to the limited number of examples available per class, we will not hold out a set each for validation and testing, but will instead consider only training and testing splits, for which the number of images will be 500 and 100, respectively. This split matches other users of the miniImagenet dataset. \par
+	
+	\section{Algorithm}
+	The proposed algorithm will consist primarily of a meta-learner $M$, which takes the weights of a source model $\bm{\theta}_S$, a set of target-class images $\bm{x}_T$, and produces a set of updates $\Delta_M$. We will first discuss what occurs during one episode, then will further clarify the episode-based training procedure. As an example in this section, we will consider a model which is being transformed from a 5-way classifier to a 10-way classifier. I.e. a case where a model with the ability to classify between 5 classes is adapted to allow for classification between 10 classes. \par
+	
+	\subsection{Meta-Learner}
+	The meta learner -- as stated above -- produces weight updates as a function of source parameters and target images:
+	\begin{align}
+	\Delta_M = M(\bm{\theta}_S, \bm{x}_T)
+	\end{align}
+	We will now discuss how this mapping will occur within the meta-learner.
+	
+	\subsubsection{Inputs}
+	We will consider only fully-convolutional source and target models. That is, models which have no fully connected layers, and the predicted class probabilities are provided by taking the maximum value from each channel in the final convolutional layer of the network. Thus, for our 5-way classifier, the final convolutional layer will consist of 5 convolutional kernels. \par
+	The first step is to add new randomly initialised weights to the source model, which grows the number of kernels in the final layer from 5 to 10. With the new weights added, for the target images, we will compute the gradient of the loss between the predicted values and the correct labels with respect to the source parameters $\bm{\theta}_S$. The weights and gradients are the inputs to the meta-learner systems. \par
+	
+	\subsubsection{Embedding}
+	Each layer will be embedded into a fixed-size matrix, with the weights and gradients remaining separate. Each of these fixed-size embeddings will be concatenated to build a dense block of embeddings representing the entire network and its responses to the target images. \par
+	
+	\subsubsection{Encoding and Decoding}
+	With the weights and gradients forming a 3-dimensional volume (ignoring the batch-dimension), we will be able to use something similar to a convolutional auto-encoder. In simple terms, this means that we can shrink the spatial dimensions of the volume by applying convolutional layers -- allowing the network to rapidly gain a large effective spatial field -- then apply the inverse operations to up-sample the activations to a volume with the same spatial size as the inputs. The resultant volume will only be of depth 1, as we are only interested in producing a per-parameter update and don't need to maintain the separation between weights and gradients as at the inputs. \par
+	This can then be un-embedded by some learnt function back to the original layer shapes, and the weight updates produced added to the source model's parameters, resulting in a model that can classify between 10 classes.
+	
+	\subsection{Training Procedure}
+	The training procedure is episode-based, with images seen from both the training and test set in a single episode. The procedure during meta-training and meta-testing works in the same way, but with each using a different subset of classes. The steps performed in a single episode are:
+	\begin{enumerate}
+		\item Randomly sample a pre-trained source model $\bm{\theta}_S$, and add randomly initialised output weights
+		\item Randomly sample a set of target classes $\bm{X}_T$, not overlapping with the source-classes
+		\item Randomly sample training images $\bm{x}_{T,train}$ and test images $\bm{x}_{T,test}$ with classes $\bm{X}_T$
+		\item Generate weight updates using meta-leaner $\bm{\Delta}_M = M(\bm{\theta}_S, \bm{x}_{T,train})$
+		\item Build target model by adding generated weight updates $\bm{\theta}_T = \bm{\theta}_S + \bm{\Delta}_M$
+		\item (meta-training only) Perform backpropagation through meta-learner with examples from combined test sets $\bm{x}_{S,test} \cup \bm{x}_{T,test}$
+	\end{enumerate}
+	As during each episode the meta-learner sees not only a different model, but a different set of source and target classes and images, the meta-learner will learn to be invariant to each of these. I.e. it won't be dependent on a specific model, class collection, or image distribution. This allows for great knowledge to be obtained throughout training, and should provide great generalisation capability. \newline \newline
+	There are several design choices to be made on the way, including the specific embedding and unembedding functions, and the architecture of the encoder/decoder among other things. These will be trialled empirically through the building of the system.
+	
+	\section{Hyper-parameter Tuning}
+	The optimizer used for the experiments will likely be Adam (section \ref{adam:1}) as it has proven to yield good results with little effort in finding an appropriate learning rate. A random search in the range of $[10^{-1}, 10^{-6}]$ will be used to find an appropriate learning rate. \par
+	The initialisation of the added weights for new class outputs will be investigated; the values will likely be drawn from a normal distribution, but will need to have the mean and standard deviation selected. This will be determined empirically by either experimentation, or by matching the mean and standard deviation of the pre-existing class output weights. \par
+	
+	\section{Evaluation}
+	\section{Software}
+	\section{Hardware}
+	\section{Proof of Concept}
+	\section{Extension Work}
+	\section{Summary}	
 	\TODO{Week 9}
 	\TODO{Week 10}
 
