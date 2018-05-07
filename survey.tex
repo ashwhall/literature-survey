@@ -416,9 +416,8 @@
 	In this chapter we introduced the concept of hand-engineered features, and how neural network architectures optimise this process so human-imposed knowledge doesn't limit the capacity of a system's performance. I then explained the functionality and applications of modern deep-learning architectures including CNNs; RNNs; and Memory Networks, and the problem domains within which I will be working. In the following chapter we will build on top of the backgroudn information described here, and analyse existing works in the fields of meta-learning and continuous learning. \par
 	
 	\chapter{Related Works} \label{related:1}
-	\TODO{Week 8}
-	In this section we will introduce and summarise some works which are related to the problem domain, and will discuss their practicality and ... \TODO{Will complete this intro when I've finished the related works section}
-	
+	As the problem domain spans across few-shot meta-learning and continuous learning, there is a myriad of related works of which we will introduce and summarise a selection. We will discuss the techniques used by each with a focus on their applicability to the task of few-shot continuous learning. We will then compare the results produced by each, with a closing discussion on the feasibility of their extension to the combined task. \par
+
 	\section{Few-Shot Meta-Learning}
 	The few-shot works discussed in this section represent a cross-section of most types of solutions, but especially those that relate to the thesis proposal. The techniques are broken into three sub-categories, \emph{model based}, \emph{metric based} and \emph{optimization based} -- each of which have their perks and downfalls, which are briefly mentioned at the end of each sub-section, and compared in section \TOCITE[reference the table that I'll make after continuous learning]{}. Few-shot meta-learning generally is usually considered separate to continuous-learning, so many of the approaches found in this section are less-applicable than others in the context of the proposal in chapter \ref{proposal}.
 
@@ -430,7 +429,7 @@
 	Although the technique described is primarily for continuous learning, they also apply it to a one-shot task. The task described is a toy-problem, but shows that through utilisation of the implemented Hebbian plasticity, the model is capable of quickly adapting its learning capacity to deal with the few-shot problem domain. The Hebbian trace could very easily be added into any artificial neural network architecture as an additional learned parameter. However, this technique's effectiveness at continuous learning tasks eventually becomes limited as the network's learned internal representation still remains fixed, meaning that there is no opportunity for it to consolidate knowledge as the breadth of the problem domain grows. \par
 	
 	\subsubsection{One-shot Learning with Memory-Augmented Neural Networks}
-	One-shot learning is approached by Santoro et. al. \parencite{oslwmann} using a memory-augmented neural network (section \ref{memory-nets:1}). memory networks are an ideal choice for few-shot learning, as they can rapidly encode, decode and selectively forget items from their external memory unit. The typical method for accessing memory locations is to use simple ``attention'', which allows the model to learn its own strategy. The authors of this paper recognise that this may result in an attention mechanism that is better purposed to sequential data, rather than the strictly un-ordered task of few-shot learning. They propose a novel memory access module called the Least Recently Used Access (LRUA) module, which is a content-based memory writer that writes memories to either the least-used or most-recently used memory locations, depending on the network's context. \par
+	One-shot learning is approached by Santoro et. al. \parencite{oslwmann} using a memory-augmented neural network (section \ref{memory-nets:1}). Memory networks are an ideal choice for few-shot learning, as they can rapidly encode, decode and selectively forget items from their external memory unit. The typical method for accessing memory locations is to use simple ``attention'', which allows the model to learn its own strategy. The authors of this paper recognise that this may result in an attention mechanism that is better purposed to sequential data, rather than the strictly un-ordered task of few-shot learning. They propose a novel memory access module called the Least Recently Used Access (LRUA) module, which is a content-based memory writer that writes memories to either the least-used or most-recently used memory locations, depending on the network's context. \par
 	This new access method garnered strong results, as it allowed the network to learn the ability to replace unnecessary information as required. They show that the technique can be applied successfully to classification and regression problems, but identified that the memory unit must be cleared between tasks, lest proactive interference may occur. It must also be acknowledged that although the LRUA module achieves increased performance, it is still a complex hand-engineered solution which is not applicable to all problem domains, and is outperformed by simpler methods such as TCML (see below).  \par
 	
 	\subsubsection{Meta-Learning with Temporal Convolutions}
@@ -609,7 +608,7 @@
 	While a simple and elegant approach, they produced mixed results. LwF's performance on the new dataset is quite consistently better than its competitors, yet demonstrates arbitrarily better and worse resilience to catastrophic interference for the old data-set. This could be a result of the fact that as the technique is not meta-learnt, the training process never receives direct feedback on its performance on the original data-set. If a new data-set and old data-set are not very similar, there is nothing ensuring that the model retains an internal feature representation that is relevant to the old classes; this would lead to performance degradation over time. \par
 	
 	\subsubsection{Overcoming Catastrophic Forgetting with Hard Attention to the Task}
-	Taking inspiration from neurology, Serr\'a et. al. \parencite{hat} devised an implementation of \emph{inhibitory synapses} -- a biological process which makes a neuron less likely to fire. They perform this by learning a task-based attention mechanism, which masks the activations on a per-neuron basis. They perform a learnt embedding of the task description per layer, which acts as the gate for that layer. This teaches the network to learn sparse internal representations for each task, effectively reducing the required capacity within the network during training, and allowing for re-use of suitable feature representations. \par
+	Taking inspiration from neurology, Serr\'a et. al. \parencite{hat} devised an implementation of \emph{inhibitory synapses} -- a biological process which makes a neuron less likely to fire. They perform this by learning a task-based hard-attention mechanism (HaT), which masks the activations on a per-neuron basis. They perform a learnt embedding of the task description per layer, which acts as the gate for that layer. This teaches the network to learn sparse internal representations for each task, effectively reducing the required capacity within the network during training, and allowing for re-use of suitable feature representations. \par
 	Catastrophic interference is well addressed with this technique, claiming reductions of 45 - 80\%. There is potential for the application to meta-learning tasks, though this is unexplored as of yet. A core limitation to this work is that the tasks must align in their output format; that is, each of the tasks were strictly image classification between 10 classes. Adding additional classes to the model is unsupported, and as such, its applicability to real-world continuous learning is quite limited. \par
 	
 	\subsubsection{Gradient Episodic Memory for Continual Learning}
@@ -629,7 +628,7 @@
 	Kirkpatrick et. al. \parencite{ewc} propose a solution for continuous learning by designing a loss function that ties parameters to a space in which the model performed well on a previous task. They introduce an algorithm referred to as Elastic Weight Consolidation (EWC), which slows down learning on weights based on how important they are to previously seen tasks, and gives learning trajectories to maintain optimal performance (figure \ref{fig:ewc:1}). They essentially seek to find a set of good parameters for a new task that is close to good parameters for previous tasks. \par
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=11cm]{ewc}
+		\includegraphics[width=9cm]{ewc}
 		\caption{Elastic Weight Consolidation parameter updates}
 		EWC causes training trajectories which maintain performance on old tasks.
 		\label{fig:ewc:1}
@@ -639,12 +638,19 @@
    	\mathcal{L}(\theta) = \mathcal{L}_B(\theta) + \sum_{i} \frac{\lambda}{2} F_i (\theta_i - \theta_{A,i}^*)^2	
 	\end{align}
 	where $\mathcal{L}_B$ is the loss for a new task, and the sum is the loss of the parameters, which elastically constrain the parameters to a space near good performance on task $A$. \par
-	Given that the solution can be implemented by simply computing a Fischer information matrix and amending the loss function, and that it is catastrophic forgetting, it's a highly attractive technique. That being said, although it's generalisable to most parametrized machine-learning systems, as with most other techniques it doesn't allow for a varied number of classification categories between tasks. 
+	Given that the solution can be implemented by simply computing a Fischer information matrix and amending the loss function, it's a highly attractive technique. That being said, although it's generalisable to most parametrized machine-learning systems, as with most other techniques it doesn't allow for a varied number of classification categories between tasks. 
 	
-	\subsection{Summary of Works}
-	I'll put a table here:
-	\FEEDBACK{I think somewhere you should put a table of results comparing the different approaches for Omligot and mini imagenet, so the readers can know how good these algorithms are with respect to each other.}
-	
+	\section{Summary}
+	In this chapter we have discussed works related to the domains of few-shot and continuous learning, and considered their feasibility to be extended to the joint-task of few-shot continuous learning. A summary of the results are shown in figure \ref{fig:table:1}, where we see that there is no technique which yields ideal results. \par
+	The primary reason for none solving the task at hand is that this a rather un-addressed -- yet important -- class of machine-learning problems. Having recognised the shortcomings of other approaches, in the next chapter we will propose a solution which attempts to address the outlined concerns. \par
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=20cm]{table}
+		\caption{Related works comparison table}
+		\label{fig:table:1}
+		Validation-set accuracy and feasibility of application to few-shot and continuous learning for related works. Entries are empty where no results are reported.
+	\end{figure}
+
 	\chapter{Proposal} \label{proposal}
 	
 	\TODO{Week 9}
