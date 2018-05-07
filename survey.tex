@@ -332,7 +332,7 @@
 	\end{itemize}
 	Researchers often return to the brain for inspiration due to its incredible capacity to deal with long-term memory without exhibiting catastrophic interference. However, the brain is far from fully understood so proposed solutions in machine learning rapidly reach a limit of practicality. \par
 	
-	\subsection{Class-Incremental Learning}
+	\subsection{Class-Incremental Learning} \label{cil}
 	A specific set-up for the problem of continuous learning is \emph{class-incremental learning}, where a system is introduced new classes of information in a strictly incremental manner -- class $i$ is only shown to the system after it has seen class $i-1$ in its entirety. In some variations, classes may be introduced in sizes greater than one, adding five or more classes for each increment. Class-incremental learning is a good test of a system's capacity for continuous learning, as it only has the one opportunity to learn each class distribution but is to retain that information for ``life''. \par
 
 	\section{Modern Deep Learning Architectures} \label{modern-dl:1}
@@ -586,10 +586,10 @@
 	Continuous learning techniques vary vastly, mainly as there is no general consensus as to what the task actually is, with the only agreement being that it is a system that can learn throughout a "lifetime", and retains information about previously learnt tasks. The works discussed in this section apply very different approaches to mostly different problems, with most being partially inapplicable to real-world situations.
 	
 	\subsubsection{Learning to Learn with Backpropagation of Hebbian Plasticity}
-	As already reviewed in section \ref{related-meta-modl:1}, this application of Hebbian plasticity to continuous learning is sensible, but limited ongoing as the model's internal representation never changes. This results in a fixed-capacity network which is highly dependant on the initial training. An ideal system would allow for parameters to change throughout the lifetime of the model to consolidate knowledge, and to learn new feature representations.
+	As already reviewed in section \ref{related-meta-modl:1}, the application of Hebbian plasticity to continuous learning developed by Miconi et. al. \parencite{ltlwbohb} is sensible, but limited ongoing as the model's internal representation never changes. This results in a fixed-capacity network which is highly dependant on the initial training. An ideal system would allow for parameters to change throughout the lifetime of the model to consolidate knowledge, and to learn new feature representations.
 	
 	\subsubsection{Learning Without Forgetting}
-	A very literal approach to continuous learning, Li et. al. \parencite{lwf} attempt to mitigate catastrophic interference by considering the base model's responses to new classes of input images as targets. They do so by augmenting the model and adding a new "output head" (see figure \TOCITE{}) for each new collection of classes introduced to the model. When training the model on these new classes, the pre-existing output heads' predicted probability distribution is recorded, and this is included in the loss calculation. \newline
+	A very literal approach to continuous learning, Li et. al. \parencite{lwf} attempt to mitigate catastrophic interference by considering the base model's responses to new classes of input images as targets. They do so by augmenting the model and adding a new "output head" (see figure \ref{fig:lwf:1}) for each new collection of classes introduced to the model. When training the model on these new classes, the pre-existing output heads' predicted probability distribution is recorded, and this is included in the loss calculation. \newline
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=8cm]{lwfarchitecture}
@@ -602,18 +602,18 @@
 	\mathcal{L}_{new}(\bm{y}_n,\hat{\bm{y}}_n) = -\bm{y}_n \cdot \text{log } \bm{\hat{y}}_n
 	\end{align}
 	\begin{align} \label{eqn:lwf:2}
-	\mathcal{L}_{old}(\bm{y}_o,\hat{\bm{y}}_o) = -\sum_{i=1}^{l} {y'}_{o}^{(i)} \cdot \text{log } \hat{y'}_n^{(i)})
+	\mathcal{L}_{old}(\bm{y}_o,\hat{\bm{y}}_o) = -\sum_{i=1}^{l}\big( {y'}_{o}^{(i)} \cdot \text{log } \hat{y'}_o^{(i)}\big)
 	\end{align}
 	Where $\bm{\hat{y}}_n$ is the one-hot target over the new classes, $\bm{\hat{y}}_o$ is the recorded probability distribution, and $\hat{y'}_n^{(i)}$ and ${y'}_{o}^{(i)}$ are the targets and predictions over the old classes with weights increased for smaller probabilities. The training process is sensitive, so they perform a "warm-up stage" where only the parameters in the new head are trained, before training with the full loss function end-to-end. \par
 	While a simple and elegant approach, they produced mixed results. LwF's performance on the new dataset is quite consistently better than its competitors, yet demonstrates arbitrarily better and worse resilience to catastrophic interference for the old data-set. This could be a result of the fact that as the technique is not meta-learnt, the training process never receives direct feedback on its performance on the original data-set. If a new data-set and old data-set are not very similar, there is nothing ensuring that the model retains an internal feature representation that is relevant to the old classes; this would lead to performance degradation over time. \par
 	
 	\subsubsection{Overcoming Catastrophic Forgetting with Hard Attention to the Task}
 	Taking inspiration from neurology, Serr\'a et. al. \parencite{hat} devised an implementation of \emph{inhibitory synapses} -- a biological process which makes a neuron less likely to fire. They perform this by learning a task-based hard-attention mechanism (HaT), which masks the activations on a per-neuron basis. They perform a learnt embedding of the task description per layer, which acts as the gate for that layer. This teaches the network to learn sparse internal representations for each task, effectively reducing the required capacity within the network during training, and allowing for re-use of suitable feature representations. \par
-	Catastrophic interference is well addressed with this technique, claiming reductions of 45 - 80\%. There is potential for the application to meta-learning tasks, though this is unexplored as of yet. A core limitation to this work is that the tasks must align in their output format; that is, each of the tasks were strictly image classification between 10 classes. Adding additional classes to the model is unsupported, and as such, its applicability to real-world continuous learning is quite limited. \par
+	Serr\'a et. al. claim to address catastrophic interference well, stating that their technique yields reductions in forgetting of previous class information of 45 - 80\%. There is potential for the application to meta-learning tasks, though this is unexplored as of yet. A core limitation to this work is that the tasks must align in their output format; that is, each of the tasks were strictly image classification between 10 classes. Adding additional classes to the model is unsupported, and as such, its applicability to real-world continuous learning is quite limited. \par
 	
 	\subsubsection{Gradient Episodic Memory for Continual Learning}
 	Long
-	Gradient Episodic Memory (GEM), proposed by Lopez-Paz et. al. \parencite{gem} considers storing examples in memory to mitigate catastrophic forgetting. They store the and compute loss for the $m$ most recently-seen examples from each task, with a total memory budget of $M=mT$ for $T$ distinct tasks. Storing examples for "replay" is a long-established technique, and isn't a true method of knowledge retention. GEM evicts memories on a least-recently-used basis, the model would quickly over-fit if the parameters were to be repeatedly optimized for everything in memory, seeing each example $m+1$ times before eviction. GEM side-steps this by instead minimising the loss with the constraint that loss for old examples cannot increase. \par
+	Gradient Episodic Memory (GEM), proposed by Lopez-Paz et. al. \parencite{gem} considers storing examples in memory to mitigate catastrophic forgetting. They store and compute loss for the $m$ most recently-seen examples from each task, with a total memory budget of $M=mT$ for $T$ distinct tasks. Storing examples for "replay" is a long-established technique, and isn't a true method of knowledge retention. GEM evicts memories on a least-recently-used basis, the model would quickly over-fit if the parameters were to be repeatedly optimized for everything in memory, seeing each example $m+1$ times before eviction. GEM side-steps this by instead minimising the loss with the constraint that loss for old examples cannot increase. \par
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=11cm]{gem}
@@ -633,7 +633,7 @@
 		EWC causes training trajectories which maintain performance on old tasks.
 		\label{fig:ewc:1}
 	\end{figure}
-	They use a Fischer information matrix $F$, which is effectively an analytical tool for estimating the importance of the parameters $\bm{\theta}$. They then use this to weight the loss of a quadratic function which constrains the parameters to stay in the region of good performance for previous tasks $A$. As the function is quadratic, the parameters are anchored to $\theta_{A,i}^*$ as by a spring, forcing the trajectory shown in \ref{fig:ewc:1}. The loss function then, is:
+	They use a Fischer information matrix $F$, which is effectively an analytical tool for estimating the importance of the parameters $\bm{\theta}$. They then use this to weight the loss of a quadratic function which constrains the parameters to stay in the region of good performance for previous tasks $A$. As the function is quadratic, the parameters are anchored to $\theta_{A,i}^*$ as by a spring, forcing the trajectory shown in figure \ref{fig:ewc:1}. The loss function then, is:
 	\begin{align}
    	\mathcal{L}(\theta) = \mathcal{L}_B(\theta) + \sum_{i} \frac{\lambda}{2} F_i (\theta_i - \theta_{A,i}^*)^2	
 	\end{align}
@@ -641,15 +641,18 @@
 	Given that the solution can be implemented by simply computing a Fischer information matrix and amending the loss function, it's a highly attractive technique. That being said, although it's generalisable to most parametrized machine-learning systems, as with most other techniques it doesn't allow for a varied number of classification categories between tasks. 
 	
 	\section{Summary}
-	In this chapter we have discussed works related to the domains of few-shot and continuous learning, and considered their feasibility to be extended to the joint-task of few-shot continuous learning. A summary of the results are shown in figure \ref{fig:table:1}, where we see that there is no technique which yields ideal results. \par
-	The primary reason for none solving the task at hand is that this a rather un-addressed -- yet important -- class of machine-learning problems. Having recognised the shortcomings of other approaches, in the next chapter we will propose a solution which attempts to address the outlined concerns. \par
-	\begin{figure}[h]
+	In this chapter we have discussed works related to the domains of few-shot and continuous learning, and considered their feasibility to be extended to the joint-task of few-shot continuous learning. A summary of the results are shown in table \ref{fig:table:1}, where we see that there is no ideal technique. As the task at hand is a combination of both few-shot and continuous learning, we consider
+	In this chapter we have discussed works related to the domains of few-shot and continuous learning. As the task at hand is a combination of both of these areas, we have also considered their feasibility to be extended to the joint task. A summary of the results shown in table \ref{fig:table:1} shows that there is no ideal technique. \par
+	As expected, the methods that designed for few-shot learning are consistently applicable to few-shot tasks; we do, however see that none of the approaches could be considered entirely applicable to continuous learning. The reasons vary between techniques, ranging from entirely incompatible to functional to a limited capacity. \par
+	Surprisingly, the continuous learning works are largely incompatible with our desired subset of continuous learning -- that is, the addition of an arbitrary number of classes. Most don't allow arbitrary numbers of classes to be added, with the only compatible method (Learning without Forgetting) having no capacity for few-shot learning. \par
+	The problem discovered then, is that not only has continuous learning with an arbitrary number of added classes not been thoroughly studied, but that there is a large gap in pre-existing works which combine few-shot and continuous learning. This leaves us with a rather un-addressed -- yet important -- class of machine-learning problems. Having recognised the shortcomings of other approaches, in the next chapter we will propose a solution which attempts to address the outlined concerns. \par
+	\begin{table}[h]
 		\centering
-		\includegraphics[width=20cm]{table}
-		\caption{Related works comparison table}
+		\includegraphics[width=17cm]{table}
+		\caption{Related works comparison}
 		\label{fig:table:1}
 		Validation-set accuracy and feasibility of application to few-shot and continuous learning for related works. Entries are empty where no results are reported.
-	\end{figure}
+	\end{table}
 
 	\chapter{Proposal} \label{proposal}
 	
