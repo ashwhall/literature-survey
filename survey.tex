@@ -656,7 +656,7 @@
 
 	\chapter{Proposal} \label{proposal}
 	The task is to take a model which has been trained to perform classification well on a dataset of $n$ classes $\bm{X}_S = {X_S^1, X_S^2, ..., X_S^n}$, and using only the model's weights and a small number of examples from $m$ disjoint classes $\bm{X}_T = {X_T^1, X_T^2, ..., X_T^m}$, produce a model which can perform well on the combined set of classes $\bm{X}_S \cup \bm{X}_T$. \par
-	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously amended throughout its lifetime.
+	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously extended throughout its lifetime.
 	
 	\section{Key Terminology}
 	\textit{Source classes} refer to a set of classes on which a \textit{source model} has been pre-trained without meta-learning. Similarly, a \textit{target model} is produced by extending a source model's classification ability to also include a set of \textit{target classes} -- a disjoint set of classes to those that the source model was trained on. \\
@@ -667,7 +667,7 @@
 	Two image-classification datasets commonly used for computer-vision experiments will be used in this project:
 	\begin{itemize}
 		\item \textbf{CIFAR-100} consists of 60,000 32x32 images in 100 classes with 600 images per class. 
-		\item \textbf{miniImagenet} consists of 60,000 images in 10 classes of approximately 256x256 pixels with 600 images per class.
+		\item \textbf{miniImagenet} consists of 60,000 images in 100 classes of approximately 256x256 pixels with 600 images per class.
 	\end{itemize}
 	These datasets are to each serve a slightly different purpose -- CIFAR-100 images are sufficiently small to allow for fast training times; miniImagenet images are higher resolution, which represent a more "real-world" set of examples. Due to this, I will utilise CIFAR-100 to test prototype solutions, before applying the same techniques to the more difficult task of miniImagenet. \par 
 
@@ -688,26 +688,26 @@
 	
 	\subsubsection{Inputs}
 	We will consider only fully-convolutional source and target models. That is, models which have no fully connected layers, and the predicted class probabilities are provided by taking the maximum value from each channel in the final convolutional layer of the network. Thus, for our 5-way classifier, the final convolutional layer will consist of 5 convolutional kernels. \par
-	The first step is to add new randomly initialised weights to the source model, which grows the number of kernels in the final layer from 5 to 10. With the new weights added, for the target images, we will compute the gradient of the loss between the predicted values and the correct labels with respect to the source parameters $\bm{\theta}_S$. The weights and gradients are the inputs to the meta-learner systems. \par
+	The first step is to add new randomly initialised weights to the source model, which grows the number of kernels in the final layer from 5 to 10. With the new weights added, with the target images we will compute the gradient of the loss between the predicted values and the correct labels with respect to the source parameters $\bm{\theta}_S$. The weights and gradients are the inputs to the meta-learner systems. \par
 	
 	\subsubsection{Embedding}
-	Each layer will be embedded into a fixed-size matrix, with the weights and gradients remaining separate. Each of these fixed-size embeddings will be concatenated to build a dense block of embeddings representing the entire network and its responses to the target images. \par
+	Each source model layer will be embedded into a fixed-size matrix, with the weights and gradients remaining separate. Each of these fixed-size embeddings will be concatenated to build a dense block of embeddings representing the entire network and its responses to the target images. \par
 	
 	\subsubsection{Encoding and Decoding}
-	With the weights and gradients forming a 3-dimensional volume (ignoring the batch-dimension), we will be able to use something similar to a convolutional auto-encoder. In simple terms, this means that we can shrink the spatial dimensions of the volume by applying convolutional layers -- allowing the network to rapidly gain a large effective spatial field -- then apply the inverse operations to up-sample the activations to a volume with the same spatial size as the inputs. The resultant volume will only be of depth 1, as we are only interested in producing a per-parameter update and don't need to maintain the separation between weights and gradients as at the inputs. \par
-	This can then be un-embedded by some learnt function back to the original layer shapes, and the weight updates produced added to the source model's parameters, resulting in a model that can classify between 10 classes.
+	With the weights and gradients forming a 3-dimensional volume (ignoring the batch-dimension), we will be able to use something similar to a convolutional auto-encoder. In simple terms, this means that we can shrink the spatial dimensions of the volume by applying convolutional layers -- allowing the network to rapidly gain a large effective spatial field -- then apply the inverse operations to up-sample the activations to a volume with the same spatial size as the inputs. The resultant volume will be of depth 1, as we are only interested in producing a per-parameter update and don't need to maintain the separation between weights and gradients as at the inputs. \par
+	This can then be un-embedded by some learnt function back to the original layer shapes, and the produced weight updates added to the source model's parameters, resulting in a target model that can classify between 10 classes.
 	
 	\subsection{Training Procedure}
 	The training procedure is episode-based, with images seen from both the training and test set in a single episode. The procedure during meta-training and meta-testing works in the same way, but with each using a different subset of classes. The steps performed in a single episode are:
 	\begin{enumerate}
-		\item Randomly sample a pre-trained source model $\bm{\theta}_S$, and add randomly initialised output weights
-		\item Randomly sample a set of target classes $\bm{X}_T$, not overlapping with the source-classes
-		\item Randomly sample training images $\bm{x}_{T,train}$ and test images $\bm{x}_{T,test}$ with classes $\bm{X}_T$
-		\item Generate weight updates using meta-leaner $\bm{\Delta}_M = M(\bm{\theta}_S, \bm{x}_{T,train})$
-		\item Build target model by adding generated weight updates $\bm{\theta}_T = \bm{\theta}_S + \bm{\Delta}_M$
-		\item (meta-training only) Perform backpropagation through meta-learner with examples from combined test sets $\bm{x}_{S,test} \cup \bm{x}_{T,test}$
+		\item Randomly sample a pre-trained source model $\bm{\theta}_S$, and add randomly initialised output weights.
+		\item Randomly sample a set of target classes $\bm{X}_T$, not overlapping with the source-classes.
+		\item Randomly sample training images $\bm{x}_{T,train}$ and test images $\bm{x}_{T,test}$ with classes $\bm{X}_T$.
+		\item Generate weight updates $\bm{\Delta}_M = M(\bm{\theta}_S, \bm{x}_{T,train})$.
+		\item Build target model by adding generated weight updates $\bm{\theta}_T = \bm{\theta}_S + \bm{\Delta}_M$.
+		\item (meta-training only) Perform backpropagation through meta-learner with examples from combined test sets $\bm{x}_{S,test} \cup \bm{x}_{T,test}$, thus optimising the generation of weight-updates.
 	\end{enumerate}
-	As during each episode the meta-learner sees not only a different model, but a different set of source and target classes and images, the meta-learner will learn to be invariant to each of these. I.e. it won't be dependent on a specific model, class collection, or image distribution. This allows for great knowledge to be obtained throughout training, and should provide great generalisation capability. \newline \newline
+	As during each episode the meta-learner sees not only a different model, but a different set of source and target classes and images, the meta-learner will learn to be invariant to each of these. I.e. it won't be dependent on a specific model, class collection, or image distribution. This allows for meaningful knowledge to be obtained throughout training, and should provide great generalisation capability. \newline \newline
 	There are several design choices to be made on the way, including the specific embedding and unembedding functions, and the architecture of the encoder/decoder among other things. These will be trialled empirically through the building of the system.
 	
 	\section{Hyper-parameter Tuning}
