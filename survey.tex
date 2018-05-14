@@ -628,7 +628,7 @@
 	Kirkpatrick et. al. \parencite{ewc} propose a solution for continuous learning by designing a loss function that ties parameters to a space in which the model performed well on a previous task. They introduce an algorithm referred to as Elastic Weight Consolidation (EWC), which slows down learning on weights based on how important they are to previously seen tasks, and gives learning trajectories to maintain optimal performance (figure \ref{fig:ewc:1}). They essentially seek to find a set of good parameters for a new task that is close to good parameters for previous tasks. \par
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=9cm]{ewc}
+		\includegraphics[width=7cm]{ewc}
 		\caption{Elastic Weight Consolidation parameter updates}
 		EWC causes training trajectories which maintain performance on old tasks.
 		\label{fig:ewc:1}
@@ -655,8 +655,12 @@
 	\end{table}
 
 	\chapter{Proposal} \label{proposal}
-	The task is to take a model which has been trained to perform classification well on a dataset of $n$ classes $\bm{X}_S = {X_S^1, X_S^2, ..., X_S^n}$, and using only the model's weights and a small number of examples from $m$ disjoint classes $\bm{X}_T = {X_T^1, X_T^2, ..., X_T^m}$, produce a model which can perform well on the combined set of classes $\bm{X}_S \cup \bm{X}_T$. \par
-	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously extended throughout its lifetime.
+	As discovered in the previous chapter, there is a gap in the research of continuous learning problems; particularly that of designing a system which is readily applicable to real-world continuous learning problems. The discussed works cover different facets of continuous learning, but none enable the ability to repeatedly augment an image classifier to increase the number of serviceable classes. \par
+	
+	\section{Problem Definition}
+	The task is to take a model which has been trained to classify $n$ classes $\bm{X}_S = {X_S^1, X_S^2, ..., X_S^n}$, and using only the model's weights and a small number of examples from $m$ disjoint classes $\bm{X}_T = {X_T^1, X_T^2, ..., X_T^m}$, produce a model which can perform well on the combined set of classes $\bm{X}_S \cup \bm{X}_T$.
+	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously extended throughout its lifetime. \par
+	While no previous works attempt this task precisely, \textit{Learning without Forgetting} does come close. The fact that the loss function incorporates the persistence of old knowledge means that it does enable a practical option for continuous learning. However, there is much to be gained by applying a meta-learnt system to the task, as carrying information between models allows for more generalised knowledge. An additional benefit is that an episodic learning schema provides opportunity to perform one-shot training. \par
 	
 	\section{Key Terminology}
 	\textit{Source classes} refer to a set of classes on which a \textit{source model} has been pre-trained without meta-learning. Similarly, a \textit{target model} is produced by extending a source model's classification ability to also include a set of \textit{target classes} -- a disjoint set of classes to those that the source model was trained on. \\
@@ -666,8 +670,8 @@
 	\section{Datasets}
 	Two image-classification datasets commonly used for computer-vision experiments will be used in this project:
 	\begin{itemize}
-		\item \textbf{CIFAR-100} consists of 60,000 32x32 images in 100 classes with 600 images per class. 
-		\item \textbf{miniImagenet} consists of 60,000 images in 100 classes of approximately 256x256 pixels with 600 images per class.
+		\item \textbf{CIFAR-100}\parencite{cifar100} consists of 60,000 32x32 images in 100 classes with 600 images per class. 
+		\item \textbf{miniImagenet}\parencite{ilsvr} consists of 60,000 images in 100 classes of approximately 256x256 pixels with 600 images per class.
 	\end{itemize}
 	These datasets are to each serve a slightly different purpose -- CIFAR-100 images are sufficiently small to allow for fast training times; miniImagenet images are higher resolution, which represent a more "real-world" set of examples. Due to this, I will utilise CIFAR-100 to test prototype solutions, before applying the same techniques to the more difficult task of miniImagenet. \par 
 
@@ -677,7 +681,19 @@
 	Due to the limited number of examples available per class, we will not hold out a set each for validation and testing, but will instead consider only training and testing splits, for which the number of images will be 500 and 100, respectively. This split matches other users of the miniImagenet dataset. \par
 	
 	\section{Algorithm}
+	\subsection{Overview}
+	\FEEDBACK{Can you draw a diagram for the algorithm?}
 	The proposed algorithm will consist primarily of a meta-learner $M$, which takes the weights of a source model $\bm{\theta}_S$, a set of target-class images $\bm{x}_T$, and produces a set of updates $\Delta_M$. We will first discuss what occurs during one episode, then will further clarify the episode-based training procedure. As an example in this section, we will consider a model which is being transformed from a 5-way classifier to a 10-way classifier. I.e. a case where a model with the ability to classify between 5 classes is adapted to allow for classification between 10 classes. \par
+	At a high-level, the proposed system architecture (figure \TOCITE{}) consists of four stages: 
+	\begin{itemize}
+		\item \textbf{Gradient calculation} - Gradients are calculated for the source model using target images.
+		\item \textbf{Embedding} - The weights and associated gradients for each layer are separately mapped to a fixed size matrix then stacked to form a 3d matrix with a depth of 2 -- maintaining separation between weights and gradients.
+		\item \textbf{Encoding and Decoding} - The weights and gradients are convolved over and down-sampled to produce a spatially-compressed representation, which is then convolved over further and up-sampled to return to the original spatial-dimensions. This output representation will only have a depth of 1, as we desire a single update value per-parameter.
+		\item \textbf{Unembedding} - This decoded representation is un-embedded to match the shapes of the input weights.
+	\end{itemize}
+	A target model is produced by applying the model outputs as parameter updates to the source model. \par
+	Even the best and most successful adaptive optimizers (section \ref{optimizers:1}) consider only per-parameter information, without seeing the relationship between weights within even the same layer. The intuition for the encoder-decoder based approach is that as the weights and gradients are convolved over and their spatial size decreased, the meta-learner gains a more global perspective. We work with the assumption that gaining a somewhat global perspective of parameter relationships is vital in performing a single, successful weight update. Only once the midpoint of the encoder-decoder has been reached does the meta-learner have a sufficient view of the inputs to produce meaningful updates. It is this context-based information that will allow for the dramatic changes to parameters necessary for one-shot learning. \par
+	The proposed approach would be considered "optimization based", as we are dealing directly with the weights and gradients themselves. This is the only practical solution, as model based and metric based options impose restrictions on the model architecture -- which is something we aim to minimise. \par
 	
 	\subsection{Meta-Learner}
 	The meta learner -- as stated above -- produces weight updates as a function of source parameters and target images:
@@ -695,6 +711,7 @@
 	
 	\subsubsection{Encoding and Decoding}
 	With the weights and gradients forming a 3-dimensional volume (ignoring the batch-dimension), we will be able to use something similar to a convolutional auto-encoder. In simple terms, this means that we can shrink the spatial dimensions of the volume by applying convolutional layers -- allowing the network to rapidly gain a large effective spatial field -- then apply the inverse operations to up-sample the activations to a volume with the same spatial size as the inputs. The resultant volume will be of depth 1, as we are only interested in producing a per-parameter update and don't need to maintain the separation between weights and gradients as at the inputs. \par
+	\FEEDBACK{refer to things in your diagram.}
 	This can then be un-embedded by some learnt function back to the original layer shapes, and the produced weight updates added to the source model's parameters, resulting in a target model that can classify between 10 classes.
 	
 	\subsection{Training Procedure}
@@ -715,13 +732,34 @@
 	The initialisation of the added weights for new class outputs will be investigated; the values will likely be drawn from a normal distribution, but will need to have the mean and standard deviation selected. This will be determined empirically by either experimentation, or by matching the mean and standard deviation of the pre-existing class output weights. \par
 	
 	\section{Evaluation}
+	Evaluation metrics for this task are as-of-yet largely undefined by others, as this is a novel problem. We will, however, define a logical extension of pre-existing metrics to apply to the problem domain. \par
+	The quality of a model will primarily be measured by two components: the accuracy of the target model on the target classes, and the accuracy of the target model on the source classes. The former is a measure of the meta-learner's capacity to rapidly learn from few examples; the latter a measure of how well the meta-learner retains important information embedded in the weights. Instead of considering the precision in terms of their absolute value, we will instead compute the difference between target model and source model precision. Concretely, for a collection of images, a model will produce a number of correct (C) and incorrect (I) predictions. We can therefore compute the precision for a given model $\bm{\theta}$ on images $\bm{x}$ as in equation \ref{eqn:evaluation:1}.
+	\begin{align} \label{eqn:evaluation:1}
+	\text{Precision}(\bm{\theta}, \bm{x}) &= \frac{C}{C+I}
+	\end{align}
+	To compute the relative improvement or deterioration of performance of a model, we simply need to compute the difference in precision between a source model and corresponding target model. It is not possible to measure the source model's performance on the target classes however, as it is in the problem definition that the source model has never seen the target images. In this case, we will consider the source model precision on the source images as a de-facto baseline by which to measure the target model's performance on the target classes. The improvement score equations for source and target classes are shown in equations \ref{eqn:evaluation:2} and \ref{eqn:evaluation:3}, respectively.
+	\begin{align} \label{eqn:evaluation:2}
+	\text{Score}_S &= \text{Precision}(\bm{\theta}_T, \bm{x}_S) - \text{Precision}(\bm{\theta}_S, \bm{x}_S) \\
+	\label{eqn:evaluation:3}
+	\text{Score}_T &= \text{Precision}(\bm{\theta}_T, \bm{x}_T) - \text{Precision}(\bm{\theta}_S, \bm{x}_S)
+	\end{align}
+	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source model.s
+	
+	
 	\section{Software}
+	The implementation of this proposal will be written using the Python interface for Tensorflow\parencite{tensorflow}, Google's open-source computational framework. Tensorflow has a vast collection of neural network functions pre-written, allows for automatic differentiation, and generally provides a nice environment for deep learning. In addition, Deepmind's Sonnet\parencite{sonnet} will be used, which abstracts some of the more complex and verbose aspects by way of a light wrapper around Tensorflow. Graphing and result logging will be done using Tensorboard, a visualisation tool included with Tensorflow. \par
+	
 	\section{Hardware}
+	As deep-learning is a computationally expensive task, a computer with a high-end modern GPU is required. A computer meeting these specification has already been required, consisting of two 8GB Nvidia GTX 1080 graphics cards, a quad-core processor and 64GB of memory. The data-sets used are relatively small -- collectively of approximately 3.5GB -- so hard-drive space is not a factor that requires consideration.  \par
+	
 	\section{Proof of Concept}
+	\TODO{I'll put something here a bit later... need to fix the current implementation!}
+	
 	\section{Extension Work}
+	The solution proposed in this chapter is applicable only to a fixed number of source and target classes. That is, a meta-learner trained to adapt a network from 10 to 15 classes cannot be applied to the task of adapting a network from 15 to 20 classes. Although it is recognised that this limitation reduces the solution's applicability to real-world cases, the primary goal is to successfully perform this task. Generalisation will be left as an extension to this original proposal. \par
+	
 	\section{Summary}	
-	\TODO{Week 9}
-	\TODO{Week 10}
+	
 
 	\printbibliography
 	
