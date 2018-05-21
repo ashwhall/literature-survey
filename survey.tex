@@ -594,7 +594,7 @@
 		\centering
 		\includegraphics[width=8cm]{lwfarchitecture}
 		\caption{Learning Without Forgetting architecture}
-		A new output head (orange) is added for each batch of new classes. The model's predicted class probability distribution over the old classes is recorded recorded and incorporated into the loss function. 
+		A new output head (orange) is added for each batch of new classes. The model's predicted class probability distribution over the old classes is recorded and incorporated into the loss function. 
 		\label{fig:lwf:1}
 	\end{figure}
 	They utilize a loss function developed by Hinton et. al \parencite{distillation} which was designed to distil the information in a neural network; the original purpose was to compress knowledge into a smaller neural network. The loss for Learning Without Forgetting (LwF) is separated into two parts: $\mathcal{L}_{old}$ dealing with the pre-existing output heads' collective class distributions $\bm{y}_o$, and $\mathcal{L}_{old}$ dealing with the new output head's class distribution $\bm{y}_n$. Cross-entropy (equation \ref{eqn:lwf:1}) is used for the new output head, and distillation loss (equation \ref{eqn:lwf:2}) for all pre-existing heads. \par
@@ -743,7 +743,7 @@
 	\label{eqn:evaluation:3}
 	\text{Score}_T &= \text{Precision}(\bm{\theta}_T, \bm{x}_T) - \text{Precision}(\bm{\theta}_S, \bm{x}_S)
 	\end{align}
-	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source model.s
+	By only considering the relative improvement of a model's performance, we don't allow the difficulty of the particular classes to distort our metrics, nor the quality of the source models.
 	
 	
 	\section{Software}
