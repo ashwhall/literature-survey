@@ -682,15 +682,22 @@
 	
 	\section{Algorithm}
 	\subsection{Overview}
-	\FEEDBACK{Can you draw a diagram for the algorithm?}
+	
 	The proposed algorithm will consist primarily of a meta-learner $M$, which takes the weights of a source model $\bm{\theta}_S$, a set of target-class images $\bm{x}_T$, and produces a set of updates $\Delta_M$. We will first discuss what occurs during one episode, then will further clarify the episode-based training procedure. As an example in this section, we will consider a model which is being transformed from a 5-way classifier to a 10-way classifier. I.e. a case where a model with the ability to classify between 5 classes is adapted to allow for classification between 10 classes. \par
-	At a high-level, the proposed system architecture (figure \TOCITE{}) consists of four stages: 
+	At a high-level, the proposed system architecture (figure \ref{fig:ml:1}) consists of four stages: 
 	\begin{itemize}
 		\item \textbf{Gradient calculation} - Gradients are calculated for the source model using target images.
 		\item \textbf{Embedding} - The weights and associated gradients for each layer are separately mapped to a fixed size matrix then stacked to form a 3d matrix with a depth of 2 -- maintaining separation between weights and gradients.
 		\item \textbf{Encoding and Decoding} - The weights and gradients are convolved over and down-sampled to produce a spatially-compressed representation, which is then convolved over further and up-sampled to return to the original spatial-dimensions. This output representation will only have a depth of 1, as we desire a single update value per-parameter.
 		\item \textbf{Unembedding} - This decoded representation is un-embedded to match the shapes of the input weights.
 	\end{itemize}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=17cm]{metalearnerarchitecture}
+		\caption{Meta learner architecture}
+		The meta learner generates weights by embedding, encoding, decoding, and un-embedding weights and gradients.
+		\label{fig:ml:1}
+	\end{figure}
 	A target model is produced by applying the model outputs as parameter updates to the source model. \par
 	Even the best and most successful adaptive optimizers (section \ref{optimizers:1}) consider only per-parameter information, without seeing the relationship between weights within even the same layer. The intuition for the encoder-decoder based approach is that as the weights and gradients are convolved over and their spatial size decreased, the meta-learner gains a more global perspective. We work with the assumption that gaining a somewhat global perspective of parameter relationships is vital in performing a single, successful weight update. Only once the midpoint of the encoder-decoder has been reached does the meta-learner have a sufficient view of the inputs to produce meaningful updates. It is this context-based information that will allow for the dramatic changes to parameters necessary for one-shot learning. \par
 	The proposed approach would be considered "optimization based", as we are dealing directly with the weights and gradients themselves. This is the only practical solution, as model based and metric based options impose restrictions on the model architecture -- which is something we aim to minimise. \par
@@ -701,7 +708,7 @@
 	\Delta_M = M(\bm{\theta}_S, \bm{x}_T)
 	\end{align}
 	We will now discuss how this mapping will occur within the meta-learner.
-	
+
 	\subsubsection{Inputs}
 	We will consider only fully-convolutional source and target models. That is, models which have no fully connected layers, and the predicted class probabilities are provided by taking the maximum value from each channel in the final convolutional layer of the network. Thus, for our 5-way classifier, the final convolutional layer will consist of 5 convolutional kernels. \par
 	The first step is to add new randomly initialised weights to the source model, which grows the number of kernels in the final layer from 5 to 10. With the new weights added, with the target images we will compute the gradient of the loss between the predicted values and the correct labels with respect to the source parameters $\bm{\theta}_S$. The weights and gradients are the inputs to the meta-learner systems. \par
@@ -711,11 +718,10 @@
 	
 	\subsubsection{Encoding and Decoding}
 	With the weights and gradients forming a 3-dimensional volume (ignoring the batch-dimension), we will be able to use something similar to a convolutional auto-encoder. In simple terms, this means that we can shrink the spatial dimensions of the volume by applying convolutional layers -- allowing the network to rapidly gain a large effective spatial field -- then apply the inverse operations to up-sample the activations to a volume with the same spatial size as the inputs. The resultant volume will be of depth 1, as we are only interested in producing a per-parameter update and don't need to maintain the separation between weights and gradients as at the inputs. \par
-	\FEEDBACK{refer to things in your diagram.}
 	This can then be un-embedded by some learnt function back to the original layer shapes, and the produced weight updates added to the source model's parameters, resulting in a target model that can classify between 10 classes.
 	
 	\subsection{Training Procedure}
-	The training procedure is episode-based, with images seen from both the training and test set in a single episode. The procedure during meta-training and meta-testing works in the same way, but with each using a different subset of classes. The steps performed in a single episode are:
+	The training procedure is episode-based, with images seen from both the training and test set in a single episode. The procedure during meta-training and meta-testing works in the same way, but with each using a different subset of classes. The steps performed in a single episode are (figure \ref{fig:ml:2}):
 	\begin{enumerate}
 		\item Randomly sample a pre-trained source model $\bm{\theta}_S$, and add randomly initialised output weights.
 		\item Randomly sample a set of target classes $\bm{X}_T$, not overlapping with the source-classes.
@@ -724,6 +730,12 @@
 		\item Build target model by adding generated weight updates $\bm{\theta}_T = \bm{\theta}_S + \bm{\Delta}_M$.
 		\item (meta-training only) Perform backpropagation through meta-learner with examples from combined test sets $\bm{x}_{S,test} \cup \bm{x}_{T,test}$, thus optimising the generation of weight-updates.
 	\end{enumerate}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=10cm]{metalearneroverview}
+		\caption{Meta learner training procedure}
+		\label{fig:ml:2}
+	\end{figure}
 	As during each episode the meta-learner sees not only a different model, but a different set of source and target classes and images, the meta-learner will learn to be invariant to each of these. I.e. it won't be dependent on a specific model, class collection, or image distribution. This allows for meaningful knowledge to be obtained throughout training, and should provide great generalisation capability. \newline \newline
 	There are several design choices to be made on the way, including the specific embedding and unembedding functions, and the architecture of the encoder/decoder among other things. These will be trialled empirically through the building of the system.
 	
