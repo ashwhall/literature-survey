@@ -31,19 +31,15 @@
 	\newpage
 	
 	\chapter{Introduction}
-	\TODO{Week 11}
-	\textbf{Very brief background}
-	Deep learning good for large data set.
-	Motivation is to work with less training examples \\
-	\textbf{Existing work on meta learning and continuous learning} \\
-	\textbf{Gap the literature} \\
-	\textbf{Describe the Problem}
-	A system that can do continual learning. Refer to this doc:
-	https://paper.dropbox.com/doc/Adding-classes-an-existing-classifier-RdKxXHh7M9OWbHvEvCCsV
-	We want it to be scalable with respect to the number of classes
-	So it should work faster than nearest neighbour based approaches for large number of classes \\
-	\textbf{High level how you will solve it and why it is different from existing work} \\
-	\textbf{Brief description of experimental setup} \\
+
+	Computer vision is the task of endowing a computer system with some level of intelligence pertaining to image data. This diverse field covers as broad topics as video tracking, pose estimation, and image restoration; however for this proposal we will consider the task of image classification -- predicting the category of object in an image. \par
+	While the interpretation of visual stimuli is considered a simple task for living things, the equivalent is of great difficulty for a computer system. Much progress has been made since the advent of artificial intelligence for computer vision in the 1960s, with techniques evolving from human-engineered to solutions to data-driven learning algorithms. The most significant development in recent times is that of neural networks -- machine learning systems that loosely emulate the behaviour of the biological brain. \par
+	Work with neural networks made of many layers'' of connections is known as \emph{deep learning}, and there has been profound success in applying it to computer vision tasks. A relatively new technique used with deep neural networks is \emph{meta learning}, which is the extension of vanilla learning algorithms to instead ``learn to learn''. These techniques have shown great potential, and have been frequently applied to the task of \emph{few-shot learning} -- which has the objective to learn a new task having seen very few examples. In addition to few-shot learning, focus has also recently shifted to \emph{continuous learning}, which is the task of continuously teaching an artificial intelligence with additional knowledge over time. \par
+	As these fields have only recently started gaining attention, there are many opportunities for experimentation, and hopefully, success. No research thus far has successfully merged these two fields to result in a practicable, usable continuous learning system that only requires a few examples to continue learning throughout its life. \par
+	We plan to bridge this gap, and produce a system that allows for the repeatable augmentation of an image classification neural network, where showing only a handful of images from a new collection of classes allows the model to sufficiently learn to classify both the new classes, and previously learnt classes. We propose to do this by taking a pre-trained image classification neural network and presenting it with some new images. An external neural network will monitor this process and learn to produce the resultant model. \par
+	The system will be implemented using the Python interface for Tensorflow\parencite{tensorflow}, Google's open-source computational framework. Furthermore, Deepmind's Sonnet\parencite{sonnet} will be used to provide a simple interface for Tensorflow. \par
+	This problem is only to consider a fixed neural network architecture; a more difficult challenge would be to devise a system which can be applied to varying architectures. This will be left as an extension, and will only be considered time permitting. \\ \\
+	In chapter \ref{background:1} we will introduce computer vision in general, before progressing to more modern and relevant information pertaining to this proposal. In chapter \ref{related:1} we will discuss works related to this task -- and those that could be considered a source if inspiration -- and will consider the benefits and detriments of each. Finally, in chapter \ref{proposal} we will formalise the task at hand, followed by the specifics of the proposed solution. \par
 	
 	
 	\chapter{Background} \label{background:1}
@@ -773,7 +769,7 @@
 	The solution proposed in this chapter is applicable only to a fixed number of source and target classes. That is, a meta-learner trained to adapt a network from 10 to 15 classes cannot be applied to the task of adapting a network from 15 to 20 classes. Although it is recognised that this limitation reduces the solution's applicability to real-world cases, the primary goal is to successfully perform this task. Generalisation will be left as an extension to this original proposal. \par
 	
 	\section{Summary}	
-	
+	\TODO{WRITE IT WRITE IT}
 
 	\printbibliography
 	
