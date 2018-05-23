@@ -656,11 +656,13 @@
 
 	\chapter{Proposal} \label{proposal}
 	As discovered in the previous chapter, there is a gap in the research of continuous learning problems; particularly that of designing a system which is readily applicable to real-world continuous learning problems. The discussed works cover different facets of continuous learning, but none enable the ability to repeatedly augment an image classifier to increase the number of serviceable classes. \par
+	A repeatable process to extend a neural network is very appealing, as it minimises the amount of computation required to grow a network's capacity, and removes the need to retain old training examples -- both of which are often a critical limitation in the use of neural networks in production.
 	
 	\section{Problem Definition}
 	The task is to take a model which has been trained to classify $n$ classes $\bm{X}_S = {X_S^1, X_S^2, ..., X_S^n}$, and using only the model's weights and a small number of examples from $m$ disjoint classes $\bm{X}_T = {X_T^1, X_T^2, ..., X_T^m}$, produce a model which can perform well on the combined set of classes $\bm{X}_S \cup \bm{X}_T$.
 	Furthermore, an important facet of the task to not only facilitate the addition of classes to a model, but to make the function repeatable, such that a model can be continuously extended throughout its lifetime. \par
-	While no previous works attempt this task precisely, \textit{Learning without Forgetting} does come close. The fact that the loss function incorporates the persistence of old knowledge means that it does enable a practical option for continuous learning. However, there is much to be gained by applying a meta-learnt system to the task, as carrying information between models allows for more generalised knowledge. An additional benefit is that an episodic learning schema provides opportunity to perform one-shot training. \par
+	While the relatively recent resurgence of meta-learning techniques has prompted much research in few-shot and continuous learning, no previous works attempt this task precisely. This is largely because there is much to be done in each of these individual domains, with state-of-the-art results surpassed on a very regular basis. That being said, the efficacy of meta-learning techniques is beginning to reach a limit, meaning that more novel applications are able to be considered.	\par
+	The previous work that is nearest to the proposed task is \textit{Learning without Forgetting}\parencite{lwf} -- the fact that the loss function incorporates the persistence of old knowledge means that it is a strong contender. However, there is much to be gained by applying a meta-learnt system to the task, as carrying information between models allows for more generalised knowledge. An additional benefit is that an episodic learning schema provides opportunity to perform one-shot training. \par
 	
 	\section{Key Terminology}
 	\textit{Source classes} refer to a set of classes on which a \textit{source model} has been pre-trained without meta-learning. Similarly, a \textit{target model} is produced by extending a source model's classification ability to also include a set of \textit{target classes} -- a disjoint set of classes to those that the source model was trained on. \\
@@ -687,7 +689,7 @@
 	At a high-level, the proposed system architecture (figure \ref{fig:ml:1}) consists of four stages: 
 	\begin{itemize}
 		\item \textbf{Gradient calculation} - Gradients are calculated for the source model using target images.
-		\item \textbf{Embedding} - The weights and associated gradients for each layer are separately mapped to a fixed size matrix then stacked to form a 3d matrix with a depth of 2 -- maintaining separation between weights and gradients.
+		\item \textbf{Embedding} - The weights and associated gradients for each layer are separately mapped to a fixed size matrix then stacked to form a 3d matrix with a depth of 2 -- maintaining separation between weights and gradients. The mapping is performed by ``pseudo-convolutions'' -- sliding fully-connected layers across the source-model weights, mapping each dimension to a fixed-size.
 		\item \textbf{Encoding and Decoding} - The weights and gradients are convolved over and down-sampled to produce a spatially-compressed representation, which is then convolved over further and up-sampled to return to the original spatial-dimensions. This output representation will only have a depth of 1, as we desire a single update value per-parameter.
 		\item \textbf{Unembedding} - This decoded representation is un-embedded to match the shapes of the input weights.
 	\end{itemize}
