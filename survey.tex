@@ -704,7 +704,7 @@
 	\section{Algorithm}
 	\subsection{Overview}
 	
-	The proposed algorithm will consist primarily of a meta-learner $M$, which takes the weights of a source model $\bm{\theta}_S$, a set of target-class images $\bm{x}_T$, and produces a set of updates $\Delta_M$. We will first discuss what occurs during one episode, then will further clarify the episode-based training procedure. As an example in this section, we will consider a model which is being transformed from a 5-way classifier to a 10-way classifier. I.e. a case where a model with the ability to classify between 5 classes is adapted to perform classification between 10 classes. \par
+	The proposed algorithm will consist primarily of a meta-learner $M$, which takes the weights of a source model $\bm{\theta}_S$, a set of target-class images $\bm{x}_T$, and produces a set of updates $\Delta_M$. We will first discuss what occurs during one episode, then will further clarify the episode-based training procedure. As an example in this section, we will consider a model which is being transformed from a 5-way classifier to a 10-way classifier. I.e. a case where a model with the ability to classify between 5 classes is adapted to perform classification between 10 classes. \\
 	At a high-level, the proposed system architecture (figure \ref{fig:ml:1}) consists of four stages: 
 	\begin{itemize}
 		\item \textbf{Gradient calculation} - Gradients are calculated for the source model using target images.
